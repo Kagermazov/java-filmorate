@@ -51,7 +51,7 @@ class FilmControllerValidatorTest extends BaseControllerValidatorTest<Film> {
 
     @DisplayName("Should throw an exception when an release date is before cinema invention")
     @Test
-    void ShouldThrowExceptionWhenReleaseDateIsBeforeCinemaInvention() {
+    void shouldThrowExceptionWhenReleaseDateIsBeforeCinemaInvention() {
         Film testFilm = new Film("Name", "a".repeat(200), LocalDate.parse("1895-12-27"),
                 1);
 
@@ -60,7 +60,7 @@ class FilmControllerValidatorTest extends BaseControllerValidatorTest<Film> {
 
     @DisplayName("Shouldn`t throw an exception when an release date is after cinema invention")
     @Test
-    void ShouldNotThrowExceptionWhenReleaseDateIsAfterCinemaInvention() {
+    void shouldNotThrowExceptionWhenReleaseDateIsAfterCinemaInvention() {
         Film testFilm = new Film("Name", "a".repeat(200), LocalDate.parse("1895-12-28"),
                 1);
 
