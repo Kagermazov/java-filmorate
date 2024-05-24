@@ -16,6 +16,7 @@ import java.util.Optional;
 public class UserController extends BaseController<User> {
 
     private final Map<Integer, User> users = new HashMap<>();
+
     @Override
     @PostMapping
     public User create(@Valid @RequestBody User newUser) {
