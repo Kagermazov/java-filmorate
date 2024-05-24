@@ -18,7 +18,7 @@ public class FilmController extends BaseController<Film> {
 
     @Override
     @PostMapping
-    public Film create(@Valid @RequestBody Film newFilm){
+    public Film create(@Valid @RequestBody Film newFilm) {
 
         super.validator.validate(newFilm);
         newFilm.setId(getNextId(this.films));
@@ -44,7 +44,7 @@ public class FilmController extends BaseController<Film> {
             throw new ValidationException("The film doesn`t exist");
         }
 
-        log.info("The film with an id {} was updated", updatedFilmId );
+        log.info("The film with an id {} was updated", updatedFilmId);
         return updatedFilm;
     }
 
