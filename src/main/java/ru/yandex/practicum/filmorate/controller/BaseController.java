@@ -3,7 +3,7 @@ import java.util.Map;
 
 public abstract class BaseController<T> implements Controller<T> {
 
-    ControllerValidator <T> validator = new ControllerValidator<>();
+    ControllerValidator<T> validator = new ControllerValidator<>();
 
     @Override
     public int getNextId(Map<Integer, T> storage) {
