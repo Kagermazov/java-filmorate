@@ -6,16 +6,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController extends BaseController<User> {
 
-    private final Map<Integer, User> users = new HashMap<>();
+    private final List<User> users = new ArrayList<>();
 
     @Override
     @PostMapping
@@ -34,7 +32,7 @@ public class UserController extends BaseController<User> {
 
         int newUserId = newUser.getId();
 
-        this.users.put(newUserId, newUser);
+        this.users.add(newUser);
         log.info("The user with id {} was created", newUserId);
         return newUser;
     }
@@ -44,7 +42,7 @@ public class UserController extends BaseController<User> {
     public User update(@Valid @RequestBody User updatedUser) {
         int updatedUserId = updatedUser.getId();
 
-        if (this.users.containsKey(updatedUserId)) {
+        if (isObjectInStorage(updatedUser, this.users)) {
             super.validator.validate(updatedUser);
 
             String newUserName = updatedUser.getName();
@@ -54,7 +52,7 @@ public class UserController extends BaseController<User> {
                 updatedUser.setName(newUserLogin);
             }
 
-            this.users.put(updatedUserId, updatedUser);
+            this.users.add(updatedUser);
             log.info("The user with id {} was updated", updatedUserId);
         } else {
             throw new ValidationException("Such user doesn`t exist");
@@ -65,7 +63,7 @@ public class UserController extends BaseController<User> {
 
     @Override
     @GetMapping
-    public Map<Integer, User> findAll() {
+    public List<User> findAll(@RequestParam(value = "storage", required = false) List<User> storage) {
         return this.users;
     }
 }

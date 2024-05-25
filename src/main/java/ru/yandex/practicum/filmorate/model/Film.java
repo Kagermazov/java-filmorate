@@ -10,7 +10,7 @@ import java.time.LocalDate;
  */
 
 @Data
-public class Film {
+public class Film implements BaseEntity {
     private int id;
     @NotBlank
     @NotNull

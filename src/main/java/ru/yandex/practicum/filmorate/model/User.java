@@ -5,12 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
 import java.time.LocalDate;
 
 
 @Data
 @AllArgsConstructor
-public class User {
+public class User implements BaseEntity{
     private int id;
     @NotBlank
     @NotNull
@@ -19,8 +20,6 @@ public class User {
     @NotBlank
     @NotNull
     private final String login;
-    @NotBlank
-    @NotNull
     private String name;
     @NotNull
     private LocalDate birthday;

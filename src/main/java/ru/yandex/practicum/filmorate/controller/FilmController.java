@@ -6,15 +6,15 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController extends BaseController<Film> {
 
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final List<Film> films = new ArrayList<>();
 
     @Override
     @PostMapping
@@ -25,7 +25,7 @@ public class FilmController extends BaseController<Film> {
 
         int newFilmId = newFilm.getId();
 
-        this.films.put(newFilmId, newFilm);
+        this.films.add(newFilm);
         log.info("The film with an id {} was created", newFilmId);
         return newFilm;
     }
@@ -38,8 +38,8 @@ public class FilmController extends BaseController<Film> {
 
         int updatedFilmId = updatedFilm.getId();
 
-        if (this.films.containsKey(updatedFilmId)) {
-            this.films.put(updatedFilmId, updatedFilm);
+        if (isObjectInStorage(updatedFilm, this.films)) {
+            this.films.add(updatedFilm);
         } else {
             throw new ValidationException("The film doesn`t exist");
         }
@@ -50,7 +50,7 @@ public class FilmController extends BaseController<Film> {
 
     @Override
     @GetMapping
-    public Map<Integer, Film> findAll() {
+    public List<Film> findAll(@RequestParam(value = "storage", required = false) List<Film> storage) {
         return this.films;
     }
 }
