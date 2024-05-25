@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-public class User implements BaseEntity{
+public class User implements BaseEntity {
     private int id;
     @NotBlank
     @NotNull
