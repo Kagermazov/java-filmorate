@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class FilmControllerValidatorTest {
 
     FilmController controller;
-
     @BeforeEach
     public void beforeEach() {
         this.controller = new FilmController();
