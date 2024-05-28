@@ -2,27 +2,21 @@ package ru.yandex.practicum.filmorate.controller;
 import ru.yandex.practicum.filmorate.model.BaseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class BaseController<T extends BaseEntity> implements Controller<T> {
 
-    ControllerValidator<T> validator = new ControllerValidator<>();
-
     @Override
-    public List<T> findAll(List<T> storage) {
-        return storage;
+    public List<T> findAll(final Map<Integer, T> storage) {
+        return storage.values().stream().toList();
     }
 
     @Override
-    public int getNextId(List<? extends BaseEntity> storage) {
-        int currentMaxId = storage.stream()
+    public int getNextId(final Map<Integer, T> storage) {
+        int currentMaxId = storage.values().stream()
                 .mapToInt(BaseEntity::getId)
                 .max()
                 .orElse(0);
         return ++currentMaxId;
-    }
-
-    @Override
-    public boolean isObjectInStorage(T objectToCheck, List<? extends BaseEntity> storage) {
-        return storage.stream().anyMatch(storedEntity -> storedEntity.getId() == objectToCheck.getId());
     }
 }

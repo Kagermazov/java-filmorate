@@ -6,20 +6,28 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController extends BaseController<User> {
 
-    private final List<User> users = new ArrayList<>();
+    private final Map<Integer, User> users;
+
+    public UserController() {
+        this.users = new HashMap<>();
+    }
 
     @Override
     @PostMapping
-    public User create(@Valid @RequestBody User newUser) {
+    public final User create(@Valid @RequestBody final User newUser) {
 
-        super.validator.validate(newUser);
+        this.validate(newUser);
 
         Optional<String> newUserName = Optional.ofNullable(newUser.getName());
         String newUserLogin = newUser.getLogin();
@@ -32,38 +40,63 @@ public class UserController extends BaseController<User> {
 
         int newUserId = newUser.getId();
 
-        this.users.add(newUser);
+        Object puttingResult = this.users.putIfAbsent(newUserId, newUser);
+
+        if (puttingResult != null) {
+            throw new ValidationException("Such user exists already");
+        }
+
         log.info("The user with id {} was created", newUserId);
         return newUser;
     }
 
     @Override
     @PutMapping
-    public User update(@Valid @RequestBody User updatedUser) {
+    public final User update(@Valid @RequestBody final User updatedUser) {
         int updatedUserId = updatedUser.getId();
+        String newUserName = updatedUser.getName();
+        String newUserLogin = updatedUser.getLogin();
 
-        if (isObjectInStorage(updatedUser, this.users)) {
-            super.validator.validate(updatedUser);
+        this.validate(updatedUser);
 
-            String newUserName = updatedUser.getName();
-            String newUserLogin = updatedUser.getLogin();
-
-            if (newUserName.isEmpty() || newUserName.isBlank()) {
-                updatedUser.setName(newUserLogin);
-            }
-
-            this.users.add(updatedUser);
-            log.info("The user with id {} was updated", updatedUserId);
-        } else {
-            throw new ValidationException("Such user doesn`t exist");
+        if (newUserName.isEmpty() || newUserName.isBlank()) {
+            updatedUser.setName(newUserLogin);
         }
 
+        Object puttingResult = this.users.putIfAbsent(updatedUserId, updatedUser);
+
+        if (puttingResult == null) {
+            throw new ValidationException("Such user doesn't exist");
+        }
+
+        log.info("The user with id {} was updated", updatedUserId);
         return updatedUser;
     }
 
-    @Override
     @GetMapping
-    public List<User> findAll(@RequestParam(value = "storage", required = false) List<User> storage) {
-        return this.users;
+    public final List<User> getUsers() {
+        return findAll(this.users);
+    }
+
+    @Override
+    public final void validate(final User userToCheck) {
+
+        Optional<String> newUserLogin = Optional.ofNullable(userToCheck.getLogin());
+        Optional<String> newUserEmail = Optional.ofNullable(userToCheck.getEmail());
+
+        if (newUserEmail.isEmpty() || newUserEmail.get().isBlank()) {
+            log.warn("The new user doesn't have an email");
+            throw new ValidationException("An user email doesn't exist");
+        }
+
+        if (newUserLogin.isEmpty() || newUserLogin.get().isBlank()) {
+            log.warn("The new user doesn't have a login");
+            throw new ValidationException("The new user doesn't have a login");
+        }
+
+        if (userToCheck.getBirthday().isAfter(LocalDate.now())) {
+            log.warn("The new user`s birthday is in the future");
+            throw new ValidationException("Birthday is wrong");
+        }
     }
 }

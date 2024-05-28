@@ -3,16 +3,17 @@ package ru.yandex.practicum.filmorate.controller;
 import ru.yandex.practicum.filmorate.model.BaseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 
-public interface Controller<T> {
+public interface Controller<T extends BaseEntity> {
     T create(T newObject);
 
     T update(T updatedObject);
 
-    List<T> findAll(List<T> storage);
+    List<T> findAll(Map<Integer, T> storage);
 
-    int getNextId(List<? extends BaseEntity> storage);
+    int getNextId(Map<Integer, T> storage);
 
-    boolean isObjectInStorage(T objectToCheck, List<? extends BaseEntity> storage);
+    void validate(T objectToCheck);
 }

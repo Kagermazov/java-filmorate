@@ -13,12 +13,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User implements BaseEntity {
     private int id;
-    @NotBlank
-    @NotNull
+    @NotBlank(message = "An email is mandatory")
     @Email
     private final String email;
-    @NotBlank
-    @NotNull
+    @NotBlank(message = "A login is mandatory")
     private final String login;
     private String name;
     @NotNull

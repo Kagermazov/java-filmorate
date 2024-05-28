@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
 import java.time.LocalDate;
 
 /**
@@ -12,11 +13,9 @@ import java.time.LocalDate;
 @Data
 public class Film implements BaseEntity {
     private int id;
-    @NotBlank
-    @NotNull
+    @NotBlank(message = "A film name in mandatory")
     private final String name;
-    @NotBlank
-    @NotNull
+    @NotBlank(message = "A film description in mandatory")
     private final String description;
     @NotNull
     private final LocalDate releaseDate;
