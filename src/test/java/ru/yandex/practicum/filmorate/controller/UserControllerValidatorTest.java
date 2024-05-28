@@ -14,8 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserControllerValidatorTest {
 
     UserController controller;
-    
+
     @BeforeEach
+
     public void beforeEach() {
         this.controller = new UserController();
     }
