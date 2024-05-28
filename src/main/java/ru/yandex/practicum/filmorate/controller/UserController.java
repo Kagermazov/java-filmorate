@@ -16,7 +16,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/users")
 public class UserController extends BaseController<User> {
-
     private final Map<Integer, User> users;
 
     public UserController() {
