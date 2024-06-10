@@ -1,0 +1,8 @@
+logging.level.org.zalando.logbook: WARN
+filmorate:
+  MAX_DESCRIPTION_LENGTH: 200
+  CINEMA_INVENTION_DATE: "1895-12-28"
+  MAX_STREAM_SIZE: 10
+  server:
+    error:
+      include-message: always
