@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -21,31 +22,34 @@ import java.util.Optional;
 @Service
 public class FilmServiceImpl implements FilmService {
     @Getter
-    private final FilmStorage storage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private final int maxStreamSize;
     private final int maxDescriptionLength;
     private final String cinemaInventionDate;
 
     @Autowired
-    public FilmServiceImpl(FilmStorage storage,
+    public FilmServiceImpl(FilmStorage filmStorage,
                            @Value("${filmorate.MAX_STREAM_SIZE}") int streamSize,
                            @Value("${filmorate.MAX_DESCRIPTION_LENGTH}") int maxDescriptionLength,
-                           @Value("${filmorate.CINEMA_INVENTION_DATE}") String cinemaInventionDate) {
-        this.storage = storage;
+                           @Value("${filmorate.CINEMA_INVENTION_DATE}") String cinemaInventionDate,
+                           UserStorage userStorage) {
+        this.filmStorage = filmStorage;
         this.maxStreamSize = streamSize;
         this.maxDescriptionLength = maxDescriptionLength;
         this.cinemaInventionDate = cinemaInventionDate;
+        this.userStorage = userStorage;
     }
 
     @Override
     public Film addFilm(@NonNull Film newFilm) {
         validate(newFilm);
-        this.storage.addFilm(newFilm);
+        this.filmStorage.addFilm(newFilm);
 
         Long newFilmId = newFilm.getId();
 
         log.info("The film with an id {} was created", newFilmId);
-        return this.storage.getFilmById(Optional.ofNullable(newFilmId)
+        return this.filmStorage.getFilmById(Optional.ofNullable(newFilmId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "The film " + newFilm.getName() + " doesn't have an ID")));
     }
@@ -53,12 +57,12 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film updateFilm(@NonNull Film updatedFilm) {
         validate(updatedFilm);
-        this.storage.updateFilm(updatedFilm);
+        this.filmStorage.updateFilm(updatedFilm);
 
         Long updatedFilmId = updatedFilm.getId();
 
         log.info("The film with an id {} was updated", updatedFilmId);
-        return this.storage.getFilmById(Optional.ofNullable(updatedFilmId)
+        return this.filmStorage.getFilmById(Optional.ofNullable(updatedFilmId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "The film " + updatedFilm.getName() + " doesn't have an ID")));
     }
@@ -66,7 +70,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> findAllFilms() {
         log.info("The film list was created");
-        return this.storage.findAllFilms();
+        return this.filmStorage.findAllFilms();
     }
 
     @Override
@@ -74,12 +78,12 @@ public class FilmServiceImpl implements FilmService {
         checkIfNegative(filmId);
         checkIfNegative(userId);
 
-        Film expectedFilm = this.storage.getFilmById(filmId);
+        Film expectedFilm = getOrThrow(filmId);
+
+        checkIfUserExist(userId);
 
         if (expectedFilm.getUsersLikes() == null) {
             expectedFilm.setUsersLikes(new HashSet<>());
-            expectedFilm.getUsersLikes().add(userId);
-            return expectedFilm;
         }
 
         if (expectedFilm.getUsersLikes().contains(userId)) {
@@ -88,7 +92,7 @@ public class FilmServiceImpl implements FilmService {
         }
 
         expectedFilm.getUsersLikes().add(userId);
-        this.storage.updateFilm(expectedFilm);
+        this.filmStorage.updateFilm(expectedFilm);
         return expectedFilm;
     }
 
@@ -97,7 +101,9 @@ public class FilmServiceImpl implements FilmService {
         checkIfNegative(filmId);
         checkIfNegative(userId);
 
-        Film expectedFilm = getFilmById(filmId);
+        Film expectedFilm = getOrThrow(filmId);
+
+        checkIfUserExist(userId);
 
         Optional.ofNullable(expectedFilm.getUsersLikes())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
@@ -106,12 +112,25 @@ public class FilmServiceImpl implements FilmService {
         return expectedFilm;
     }
 
+    private void checkIfUserExist(long userId) {
+        if (this.userStorage.getUserById(userId) == null) {
+            throw new ValidationException(HttpStatus.NOT_FOUND,
+                    "The user with id " + userId + " doesn't exist");
+        }
+    }
+
+    private Film getOrThrow(long filmId) {
+        return Optional.ofNullable(this.filmStorage.getFilmById(filmId))
+                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
+                        "The film with id " + filmId + " doesn't exist"));
+    }
+
     @Override
     public List<Film> findPopularFilms(Integer count) {
         if (count == null) {
 
             log.info("Popular films list is created");
-            return this.storage.findAllFilms().stream()
+            return this.filmStorage.findAllFilms().stream()
                     .filter(film -> film.getUsersLikes() != null)
                     .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
                     .limit(maxStreamSize)
@@ -119,7 +138,7 @@ public class FilmServiceImpl implements FilmService {
         }
 
         log.info("Popular films list is created with limit of {}", count);
-        return this.storage.findAllFilms().stream()
+        return this.filmStorage.findAllFilms().stream()
                 .filter(film -> film.getUsersLikes() != null)
                 .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
                 .limit(count)
@@ -134,7 +153,7 @@ public class FilmServiceImpl implements FilmService {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "The id is negative");
         }
 
-        return this.storage.getFilmById(filmId);
+        return this.filmStorage.getFilmById(filmId);
     }
 
     private void validate(Film filmToCheck) {
