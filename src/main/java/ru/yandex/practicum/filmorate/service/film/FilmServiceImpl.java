@@ -21,22 +21,15 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class FilmServiceImpl implements FilmService {
-    @Getter
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final int maxStreamSize;
-    private final int maxDescriptionLength;
     private final String cinemaInventionDate;
 
     @Autowired
     public FilmServiceImpl(FilmStorage filmStorage,
-                           @Value("${filmorate.MAX_STREAM_SIZE}") int streamSize,
-                           @Value("${filmorate.MAX_DESCRIPTION_LENGTH}") int maxDescriptionLength,
                            @Value("${filmorate.CINEMA_INVENTION_DATE}") String cinemaInventionDate,
                            UserStorage userStorage) {
         this.filmStorage = filmStorage;
-        this.maxStreamSize = streamSize;
-        this.maxDescriptionLength = maxDescriptionLength;
         this.cinemaInventionDate = cinemaInventionDate;
         this.userStorage = userStorage;
     }
@@ -120,15 +113,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findPopularFilms(Integer count) {
-        if (count == null) {
-            log.info("Popular films list is created");
-            return this.filmStorage.findAllFilms().stream()
-                    .filter(film -> film.getUsersLikes() != null)
-                    .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
-                    .limit(maxStreamSize)
-                    .toList();
-        }
-
         log.info("Popular films list is created with limit of {}", count);
         return this.filmStorage.findAllFilms().stream()
                 .filter(film -> film.getUsersLikes() != null)
@@ -143,11 +127,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     private void validate(Film filmToCheck) {
-        if (filmToCheck.getDescription().length() > this.maxDescriptionLength) {
-            log.warn("A description length is more than 200 symbols");
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "A description length is more than 200 symbols");
-        }
-
         if (filmToCheck.getReleaseDate().isBefore(LocalDate.parse(this.cinemaInventionDate))) {
             log.warn("The release date is wrong");
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Cinema didn't exist that time");
