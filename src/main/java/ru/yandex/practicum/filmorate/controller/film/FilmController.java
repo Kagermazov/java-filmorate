@@ -15,49 +15,49 @@ public class FilmController {
     private final FilmService service;
 
     @Autowired
-    public FilmController(FilmService service) {
-        this.service = service;
+    public FilmController(FilmService serviceForFilms) {
+        service = serviceForFilms;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addFilm(@Valid @RequestBody Film newFilm) {
-        return this.service.addFilm(newFilm);
+        return service.addFilm(newFilm);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public Film updateFilm(@Valid @RequestBody Film updatedFilm) {
-        return this.service.updateFilm(updatedFilm);
+        return service.updateFilm(updatedFilm);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Film> findAllFilms() {
-        return this.service.findAllFilms();
+        return service.findAllFilms();
     }
 
     @GetMapping("/{filmId}")
     @ResponseStatus(HttpStatus.OK)
     public Film getFilmById(@PathVariable long filmId) {
-        return this.service.getFilmById(filmId);
+        return service.getFilmById(filmId);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public Film addLike(@PathVariable long filmId, @PathVariable long userId) {
-        return this.service.addLike(userId, filmId);
+        return service.addLike(userId, filmId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public Film removeLike(@PathVariable long id, @PathVariable long userId) {
-        return this.service.removeLike(id, userId);
+        return service.removeLike(id, userId);
     }
 
     @GetMapping("/popular")
     @ResponseStatus(HttpStatus.OK)
     public List<Film> findPopularFilms(@RequestParam(required = false) Integer count) {
-        return this.service.findPopularFilms(count);
+        return service.findPopularFilms(count);
     }
 }
