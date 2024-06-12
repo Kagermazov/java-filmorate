@@ -11,12 +11,12 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
+    private long counter;
 
     @Override
     public void addUser(@NonNull User newUser) {
@@ -51,10 +51,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private long getNextId() {
-        long currentMaxId = this.users.values().stream()
-                .mapToLong(user -> Optional.ofNullable(user.getId()).orElseThrow())
-                .max()
-                .orElse(0);
-        return currentMaxId + 1;
+     return ++this.counter;
     }
 }

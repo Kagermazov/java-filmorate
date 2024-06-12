@@ -11,13 +11,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
+    private long counter;
 
     @Override
     public void addFilm(@NonNull Film newFilm) {
@@ -51,12 +51,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private long getNextId() {
-        long currentMaxId = this.films.values().stream()
-                .mapToLong(film -> Optional.ofNullable(film.getId())
-                        .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                                "The film " + film.getName() + " doesn't have an ID")))
-                .max()
-                .orElse(0);
-        return currentMaxId + 1;
+        return ++this.counter;
     }
 }
