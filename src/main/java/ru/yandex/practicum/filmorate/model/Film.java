@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NonNull;
+import ru.yandex.practicum.filmorate.service.film.ReleaseDateConstraint;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -24,6 +25,7 @@ public class Film {
     private final String description;
 
     @NonNull
+    @ReleaseDateConstraint
     private final LocalDate releaseDate;
 
     @NonNull

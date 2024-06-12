@@ -51,6 +51,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private long getNextId() {
-     return ++this.counter;
+        return ++this.counter;
     }
 }

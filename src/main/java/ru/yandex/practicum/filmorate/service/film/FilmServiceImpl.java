@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.service.film;
 
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -12,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -23,20 +20,16 @@ import java.util.Optional;
 public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final String cinemaInventionDate;
 
     @Autowired
     public FilmServiceImpl(FilmStorage filmStorage,
-                           @Value("${filmorate.CINEMA_INVENTION_DATE}") String cinemaInventionDate,
                            UserStorage userStorage) {
         this.filmStorage = filmStorage;
-        this.cinemaInventionDate = cinemaInventionDate;
         this.userStorage = userStorage;
     }
 
     @Override
     public Film addFilm(@NonNull Film newFilm) {
-        validate(newFilm);
         this.filmStorage.addFilm(newFilm);
 
         Long newFilmId = newFilm.getId();
@@ -49,7 +42,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film updateFilm(@NonNull Film updatedFilm) {
-        validate(updatedFilm);
         this.filmStorage.updateFilm(updatedFilm);
 
         Long updatedFilmId = updatedFilm.getId();
@@ -124,12 +116,5 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film getFilmById(long filmId) {
         return this.filmStorage.getFilmById(filmId);
-    }
-
-    private void validate(Film filmToCheck) {
-        if (filmToCheck.getReleaseDate().isBefore(LocalDate.parse(this.cinemaInventionDate))) {
-            log.warn("The release date is wrong");
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Cinema didn't exist that time");
-        }
     }
 }

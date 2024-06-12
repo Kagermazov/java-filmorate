@@ -91,11 +91,8 @@ public class UserServiceImpl implements UserService {
             firstUser.setFriends(new HashSet<>());
         }
 
-        if (firstUser.getFriends().add(newFriendId)) {
-            if (newFriend.getFriends() == null) {
-                newFriend.setFriends(new HashSet<>());
-            }
-
+        if (firstUser.getFriends().add(newFriendId) && newFriend.getFriends() == null) {
+            newFriend.setFriends(new HashSet<>());
             newFriend.getFriends().add(userId);
             this.storage.updateUser(firstUser);
             this.storage.updateUser(newFriend);
