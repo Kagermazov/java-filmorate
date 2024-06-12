@@ -42,7 +42,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public @Nullable User getUserById(long userId) {
-        checkIfNegative(userId);
         return this.users.get(userId);
     }
 
@@ -57,11 +56,5 @@ public class InMemoryUserStorage implements UserStorage {
                 .max()
                 .orElse(0);
         return currentMaxId + 1;
-    }
-
-    private void checkIfNegative(long number) {
-        if (number < 0) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "One of ids is negative");
-        }
     }
 }

@@ -42,7 +42,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilmById(long filmId) {
-        checkIfNegative(filmId);
         return this.films.get(filmId);
     }
 
@@ -59,11 +58,5 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .max()
                 .orElse(0);
         return currentMaxId + 1;
-    }
-
-    private void checkIfNegative(long number) {
-        if (number < 0) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "One of ids is negative");
-        }
     }
 }

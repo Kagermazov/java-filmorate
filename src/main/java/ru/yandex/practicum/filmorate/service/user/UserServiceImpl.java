@@ -64,8 +64,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAllUserFriends(long userId) {
-        checkIfNegative(userId);
-
         Set<Long> userFriends = Optional.ofNullable(this.storage.getUserById(userId))
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userId + " doesn't exist")).getFriends();
@@ -82,9 +80,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public @Nullable User addFriend(long userId, long newFriendId) {
-        checkIfNegative(userId);
-        checkIfNegative(newFriendId);
-
         User firstUser = Optional.ofNullable(this.storage.getUserById(userId))
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userId + " doesn't exist"));
@@ -113,9 +108,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> showCommonFriends(long userId, long userIdToCompare) {
-        checkIfNegative(userId);
-        checkIfNegative(userIdToCompare);
-
         Set<Long> intersection = Optional.ofNullable(this.storage.getUserById(userId).getFriends())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userId + " doesn't have friends"));
@@ -136,9 +128,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User unfriend(long userId, long userToUnfriendId) {
-        checkIfNegative(userId);
-        checkIfNegative(userId);
-
         User userToReturn = Optional.ofNullable(this.storage.getUserById(userId))
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "There's no user with id " + userId));
@@ -176,13 +165,6 @@ public class UserServiceImpl implements UserService {
 
         if (newUserName.isEmpty() || newUserName.isBlank()) {
             newUser.setName(newUserLogin);
-        }
-    }
-
-    private void checkIfNegative(long number) {
-        if (number < 0) {
-            log.warn("The id {} is negative", number);
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "One of ids is negative");
         }
     }
 }

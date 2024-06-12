@@ -75,9 +75,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film addLike(long userId, long filmId) {
-        checkIfNegative(filmId);
-        checkIfNegative(userId);
-
         Film expectedFilm = getOrThrow(filmId);
 
         checkIfUserExist(userId);
@@ -98,13 +95,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film removeLike(long filmId, long userId) {
-        checkIfNegative(filmId);
-        checkIfNegative(userId);
-
         Film expectedFilm = getOrThrow(filmId);
 
         checkIfUserExist(userId);
-
         Optional.ofNullable(expectedFilm.getUsersLikes())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "The film with id " + filmId + " doesn't have likes"))
@@ -128,7 +121,6 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> findPopularFilms(Integer count) {
         if (count == null) {
-
             log.info("Popular films list is created");
             return this.filmStorage.findAllFilms().stream()
                     .filter(film -> film.getUsersLikes() != null)
@@ -147,12 +139,6 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film getFilmById(long filmId) {
-        checkIfNegative(filmId);
-
-        if (filmId < 0) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "The id is negative");
-        }
-
         return this.filmStorage.getFilmById(filmId);
     }
 
@@ -165,17 +151,6 @@ public class FilmServiceImpl implements FilmService {
         if (filmToCheck.getReleaseDate().isBefore(LocalDate.parse(this.cinemaInventionDate))) {
             log.warn("The release date is wrong");
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Cinema didn't exist that time");
-        }
-
-        if (filmToCheck.getDuration() < 0) {
-            log.warn("The duration is negative");
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "Duration can`t be negative");
-        }
-    }
-
-    private void checkIfNegative(long number) {
-        if (number < 0) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST, "One of ids is negative");
         }
     }
 }

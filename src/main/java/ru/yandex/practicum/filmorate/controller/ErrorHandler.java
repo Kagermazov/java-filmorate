@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 @Slf4j
@@ -18,6 +19,13 @@ public class ErrorHandler {
 
         log.warn("Exception: ", e);
         return new ResponseEntity<>(response, e.getStatus());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleHandlerMethodValidationException(HandlerMethodValidationException e) {
+        log.warn("One of a controller method parameters is wrong", e);
+        return new ErrorResponse(e.toString(), e.getMessage());
     }
 
     @ExceptionHandler
