@@ -26,4 +26,5 @@ public class User {
     private LocalDate birthday;
     @Nullable
     private Set<Long> friends;
+    private final boolean isFriendshipAccepted;
 }
