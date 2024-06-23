@@ -1,3 +1,6 @@
+DROP SCHEMA PUBLIC CASCADE;
+CREATE SCHEMA PUBLIC;
+
 --создать таблицу с фильмами
 
 CREATE TABLE films (id bigint GENERATED always AS IDENTITY PRIMARY KEY,
@@ -9,12 +12,16 @@ duration 		integer NOT NULL);
 
 --добавить фильмы в таблицу films
 
-INSERT INTO films (film_name,
-rating,
-description,
-release_date,
-duration)
-VALUES ('name1', 'raiting1', 'description1', '1111-11-11', 1),
+INSERT INTO films
+(
+    film_name,
+    rating,
+    description,
+    release_date,
+    duration
+)
+VALUES
+('name1', 'raiting1', 'description1', '1111-11-11', 1),
 ('name2', 'raiting2', 'description2', '2222-02-22', 2),
 ('name3', 'raiting3', 'description3', '3333-03-03', 3),
 ('name4', 'raiting4', 'description4', '4444-04-04', 4),
@@ -36,8 +43,15 @@ birthday date NOT NULL);
 
 --добавить пользователей в таблицу users
 
-INSERT INTO users (email, user_name, birthday, login)
-VALUES ('email1', 'name1', '1111-11-11', 'login1'),
+INSERT INTO users
+(
+    email,
+    user_name,
+    birthday,
+    login
+)
+VALUES
+('email1', 'name1', '1111-11-11', 'login1'),
 ('email2', 'name2', '2222-02-22', 'login2'),
 ('email3', 'name3', '3333-03-03', 'login3'),
 ('email4', 'name4', '4444-04-04', 'login4');
@@ -63,8 +77,13 @@ CONSTRAINT film_genre_unique unique (film_id, genre_id)
 
 --заполнить join-таблицу фильмов и жанров
 
-INSERT INTO films_genre (film_id, genre_id)
-VALUES (1, 2),
+INSERT INTO films_genre
+(
+    film_id,
+    genre_id
+)
+VALUES
+(1, 2),
 (2, 1),
 (3, 2),
 (4, 1),
@@ -86,43 +105,53 @@ CONSTRAINT one_user_one_like unique (film_id, user_id))
 
 --заполнить join-таблицу фильмов и пользователей
 
-INSERT INTO films_users (film_id, user_id)
-VALUES (1,1),
-(1,2),
-(2,3),
-(2,4),
-(3,1),
-(3,2),
-(4,3),
-(4,4),
-(5,1),
-(5,2),
-(6,1),
-(7,2),
-(8,3),
-(9,4),
-(10,1),
-(11,2);
+INSERT INTO films_users
+(
+    film_id,
+    user_id
+)
+VALUES
+(1, 1),
+(1, 2),
+(2, 3),
+(2, 4),
+(3, 1),
+(3, 2),
+(4, 3),
+(4, 4),
+(5, 1),
+(5, 2),
+(6, 1),
+(7, 2),
+(8, 3),
+(9, 4),
+(10, 1),
+(11, 2);
 
 --создать таблицу отношений дружбы пользователей
 
 CREATE TABLE friends (friends_key INT GENERATED ALWAYS AS IDENTITY,
 user_id bigint REFERENCES users(id),
 friend_id bigint REFERENCES users(id),
-isFriendshipAccepted boolean,
-CONSTRAINT friendship_unique unique (user_id, friend_id));
+is_friendship_accepted boolean not null default false,
+constraint f unique (user_id, friend_id));
+
+drop table friends;
 
 --заполнить таблицу отношений дружбы пользователей
 
-INSERT INTO friends (user_id, friend_id)
+INSERT INTO friends (user_id, friend_id, is_friendship_accepted)
 values
-(1,4),
-(1,2),
-(2,3),
-(3,1),
-(3,2);
-
-delete from friends;
+(1,4, true),
+(4,1, true),
+(1,2, true),
+(2,1, true),
+(2,3, true),
+(3,2, true),
+(3,1, true),
+(1,3, true),
+(4,2, true),
+(2,4, true);
 
 --получить список всех фильмов с жанром и лайками
 
@@ -130,9 +159,9 @@ SELECT films.*,
 genre.genre_name,
 fu.user_id
 FROM films
-JOIN films_genre ON films.id=films_genre.film_id
-JOIN genre ON films_genre.genre_id=genre.id
-JOIN films_users fu ON films.id =fu.film_id ;
+LEFT JOIN films_genre ON films.id=films_genre.film_id
+left JOIN genre ON films_genre.genre_id=genre.id
+left JOIN films_users fu ON films.id =fu.film_id ;
 
 --получить список всех юзеров и их состояние дружбы
 
@@ -143,7 +172,7 @@ users.birthday,
 f.friend_id,
 f.isfriendshipaccepted
 FROM users
-JOIN friends f ON users.id = f.friend_id ;
+left JOIN friends f ON users.id = f.user_id ;
 
 --получить список 5 популярных фильмов
 
@@ -161,5 +190,11 @@ SELECT
 f.friend_id AS common_friend
 FROM friends f
 JOIN friends f2 ON f.friend_id = f2.friend_id
-WHERE f.user_id = 1
+WHERE f.is_friendship_accepted and f2.is_friendship_accepted and f.user_id = 1
 AND f2.user_id = 3 ;
+
+--получить список всех друзей пользователя
+select friend_id
+from friends f
+where f.user_id = 1
+;
