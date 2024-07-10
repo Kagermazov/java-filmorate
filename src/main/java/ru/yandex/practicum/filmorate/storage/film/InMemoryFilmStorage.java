@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -12,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
@@ -36,6 +34,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         this.films.replace(updatedFilmId, updatedFilm);
     }
 
+    @Override
+    public void deleteFilms() {
+        this.films.clear();
+    }
+
+    @Override
     public List<Film> findAllFilms() {
         return this.films.values().stream().toList();
     }
@@ -43,11 +47,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getFilmById(long filmId) {
         return this.films.get(filmId);
-    }
-
-    @Override
-    public void deleteFilms() {
-        this.films.clear();
     }
 
     private long getNextId() {

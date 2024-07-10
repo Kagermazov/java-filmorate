@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
         if (firstUser.getFriends() == null) {
             firstUser.setFriends(new HashSet<>());
         }
-
+//fixme вынести проверку на сет друзей из-под ифа
         if (firstUser.getFriends().add(newFriendId) && newFriend.getFriends() == null) {
             newFriend.setFriends(new HashSet<>());
             newFriend.getFriends().add(userId);

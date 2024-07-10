@@ -37,7 +37,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("The film with an id {} was created", newFilmId);
         return this.filmStorage.getFilmById(Optional.ofNullable(newFilmId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "The film " + newFilm.getName() + " doesn't have an ID")));
+                        "The film " + newFilm.getFilmName() + " doesn't have an ID")));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("The film with an id {} was updated", updatedFilmId);
         return this.filmStorage.getFilmById(Optional.ofNullable(updatedFilmId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "The film " + updatedFilm.getName() + " doesn't have an ID")));
+                        "The film " + updatedFilm.getFilmName() + " doesn't have an ID")));
     }
 
     @Override
