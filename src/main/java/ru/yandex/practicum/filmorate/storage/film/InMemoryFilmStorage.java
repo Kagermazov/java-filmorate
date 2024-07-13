@@ -10,17 +10,19 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-@Component
+@Component("inMemoryFilmStorage")
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private long counter;
 
     @Override
-    public void addFilm(@NonNull Film newFilm) {
+    public Film addFilm(@NonNull Film newFilm) {
         newFilm.setId(getNextId());
         this.films.put(newFilm.getId(), newFilm);
+        return newFilm;
     }
 
     @Override
@@ -34,19 +36,17 @@ public class InMemoryFilmStorage implements FilmStorage {
         this.films.replace(updatedFilmId, updatedFilm);
     }
 
-    @Override
     public void deleteFilms() {
         this.films.clear();
     }
 
     @Override
-    public List<Film> findAllFilms() {
+    public List<Film> getAllFilms() {
         return this.films.values().stream().toList();
     }
 
-    @Override
-    public Film getFilmById(long filmId) {
-        return this.films.get(filmId);
+    public Optional<Film> getFilmById(long filmId) {
+        return Optional.ofNullable(this.films.get(filmId));
     }
 
     private long getNextId() {

@@ -1,38 +1,55 @@
---create a film table
-create table IF NOT EXISTS films (id bigint GENERATED always AS IDENTITY PRIMARY KEY,
-film_name 		varchar NOT NULL,
-rating 			varchar,
-description 	varchar NOT NULL,
-release_date 	date NOT NULL,
-duration 		integer NOT NULL);
+DROP TABLE IF EXISTS FILMS_GENRE;
+DROP TABLE IF EXISTS FILMS_USERS;
+DROP TABLE IF EXISTS FILMS_MPA;
+DROP TABLE IF EXISTS FRIENDS;
+DROP TABLE IF EXISTS FILMS;
+DROP TABLE IF EXISTS MPA;
+DROP TABLE IF EXISTS USERS;
+DROP TABLE IF EXISTS GENRE;
 
---create a user table
-create table IF NOT EXISTS users (id bigint GENERATED always AS IDENTITY PRIMARY KEY,
+--create a films table
+CREATE TABLE IF NOT EXISTS FILMS (id bigint generated always AS IDENTITY PRIMARY KEY,
+film_name varchar NOT NULL,
+rating int,
+description varchar NOT NULL,
+release_date date NOT NULL,
+duration integer NOT NULL);
+
+--create a users table
+CREATE TABLE IF NOT EXISTS USERS (id bigint generated always AS IDENTITY PRIMARY KEY,
 email varchar NOT NULL UNIQUE,
 user_name varchar,
 login varchar NOT NULL,
 birthday date NOT NULL);
 
 --create a genre table
-create table IF NOT EXISTS genre (id int GENERATED always AS IDENTITY PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS GENRE (id bigint generated always AS IDENTITY PRIMARY KEY,
 genre_name varchar);
 
+--create a mpa table
+CREATE TABLE IF NOT EXISTS MPA (id bigint generated always AS IDENTITY PRIMARY KEY,
+mpa_name varchar);
+
 --create an join table films_genre
-create table films_genre (films_genre_key int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-film_id bigint REFERENCES films("id"),
-genre_id integer REFERENCES genre("id"),
-CONSTRAINT film_genre_unique unique (film_id, genre_id)
-);
+CREATE TABLE IF NOT EXISTS FILMS_GENRE (films_genre_key bigint generated always AS IDENTITY PRIMARY KEY,
+film_id bigint REFERENCES films(id),
+genre_id integer REFERENCES genre(id),
+CONSTRAINT film_genre_unique UNIQUE (film_id, genre_id));
+
+--create an join table films_mpa
+CREATE TABLE IF NOT EXISTS FILMS_MPA (films_mpa_key bigint generated always AS IDENTITY PRIMARY KEY,
+film_id bigint REFERENCES films(id),
+mpa_id integer REFERENCES mpa(id),
+CONSTRAINT film_mpa_unique UNIQUE (film_id, mpa_id));
 
 --create an join table films_users
-create table IF NOT EXISTS films_users (films_users_key int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-film_id bigint REFERENCES films("id"),
-user_id bigint REFERENCES users("id"),
-CONSTRAINT one_user_one_like unique (film_id, user_id))
-;
+CREATE TABLE IF NOT EXISTS FILMS_USERS (FILMS_USERS_key bigint generated always AS IDENTITY PRIMARY KEY,
+film_id bigint REFERENCES films(id),
+user_id bigint REFERENCES users(id),
+CONSTRAINT one_user_one_like UNIQUE (film_id, user_id)) ;
 
 --create a friendship table
-create table IF NOT EXISTS friends (friends_key int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS FRIENDS (friends_key bigint generated always AS IDENTITY PRIMARY KEY,
 user_id bigint REFERENCES users(id),
 friend_id bigint REFERENCES users(id),
-constraint friendship_unique unique (user_id, friend_id));
+CONSTRAINT friendship_unique UNIQUE (user_id, friend_id));

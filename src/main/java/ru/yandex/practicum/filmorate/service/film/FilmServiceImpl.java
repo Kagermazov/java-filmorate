@@ -3,9 +3,12 @@ package ru.yandex.practicum.filmorate.service.film;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -22,45 +25,47 @@ public class FilmServiceImpl implements FilmService {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmServiceImpl(FilmStorage filmStorage,
+    public FilmServiceImpl(@Qualifier("inMemoryFilmStorage") FilmStorage filmStorage,
                            UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
 
     @Override
-    public Film addFilm(@NonNull Film newFilm) {
+    public FilmCreateDto addFilm(@NonNull Film newFilm) {
         this.filmStorage.addFilm(newFilm);
 
         Long newFilmId = newFilm.getId();
 
         log.info("The film with an id {} was created", newFilmId);
-        return this.filmStorage.getFilmById(Optional.ofNullable(newFilmId)
-                .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "The film " + newFilm.getFilmName() + " doesn't have an ID")));
+        return FilmMapper.mapToFilmDto(newFilm);
+
     }
 
     @Override
-    public Film updateFilm(@NonNull Film updatedFilm) {
+    public FilmCreateDto updateFilm(@NonNull Film updatedFilm) {
         this.filmStorage.updateFilm(updatedFilm);
 
         Long updatedFilmId = updatedFilm.getId();
 
         log.info("The film with an id {} was updated", updatedFilmId);
-        return this.filmStorage.getFilmById(Optional.ofNullable(updatedFilmId)
-                .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "The film " + updatedFilm.getFilmName() + " doesn't have an ID")));
+        return FilmMapper.mapToFilmDto(updatedFilm);
     }
 
     @Override
-    public List<Film> findAllFilms() {
+    public List<FilmCreateDto> getAllFilms() {
         log.info("The film list was created");
-        return this.filmStorage.findAllFilms();
+        return this.filmStorage.getAllFilms().stream()
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
     }
 
     @Override
-    public Film addLike(long userId, long filmId) {
-        Film expectedFilm = getOrThrow(filmId);
+    public FilmCreateDto addLike(long userId, long filmId) {
+        Film expectedFilm = this.filmStorage.getAllFilms().stream()
+                .filter(film -> film.getId() == filmId)
+                .findAny()
+                .orElse(null);
 
         checkIfUserExist(userId);
 
@@ -75,19 +80,22 @@ public class FilmServiceImpl implements FilmService {
 
         expectedFilm.getUsersLikes().add(userId);
         this.filmStorage.updateFilm(expectedFilm);
-        return expectedFilm;
+        return FilmMapper.mapToFilmDto(expectedFilm);
     }
 
     @Override
-    public Film removeLike(long filmId, long userId) {
-        Film expectedFilm = getOrThrow(filmId);
+    public FilmCreateDto removeLike(long filmId, long userId) {
+        Film expectedFilm = this.filmStorage.getAllFilms().stream()
+                .filter(film -> film.getId() == filmId)
+                .findAny()
+                .orElse(null);
 
         checkIfUserExist(userId);
         Optional.ofNullable(expectedFilm.getUsersLikes())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "The film with id " + filmId + " doesn't have likes"))
                 .remove(userId);
-        return expectedFilm;
+        return FilmMapper.mapToFilmDto(expectedFilm);
     }
 
     private void checkIfUserExist(long userId) {
@@ -97,24 +105,14 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-    private Film getOrThrow(long filmId) {
-        return Optional.ofNullable(this.filmStorage.getFilmById(filmId))
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "The film with id " + filmId + " doesn't exist"));
-    }
-
     @Override
-    public List<Film> findPopularFilms(Integer count) {
+    public List<FilmCreateDto> findPopularFilms(Integer count) {
         log.info("Popular films list is created with limit of {}", count);
-        return this.filmStorage.findAllFilms().stream()
+        return this.filmStorage.getAllFilms().stream()
                 .filter(film -> film.getUsersLikes() != null)
                 .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
                 .limit(count)
+                .map(FilmMapper::mapToFilmDto)
                 .toList();
-    }
-
-    @Override
-    public Film getFilmById(long filmId) {
-        return this.filmStorage.getFilmById(filmId);
     }
 }

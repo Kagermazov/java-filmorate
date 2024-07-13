@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-public class Film {
+public class FilmCreateDto {
     @Nullable
     @Positive
     private Long id;
@@ -23,7 +23,7 @@ public class Film {
     private String name;
 
     @Nullable
-    private FilmRating mpa;
+    private MpaDto mpa;
 
     @Size(max = 200, message = "A description length is more than 200 symbols")
     @NotBlank(message = "A film description in mandatory")
@@ -38,7 +38,7 @@ public class Film {
     private Integer duration;
 
     @Nullable
-    private Set<Genre> genres;
+    private Set<GenreDto> genres;
 
     @Nullable
     private Set<Long> usersLikes;
