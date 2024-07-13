@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class GenreDto {
-    Long id;
+    Integer id;
 }

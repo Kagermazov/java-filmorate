@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Component
@@ -16,7 +17,7 @@ public class FilmsRowMapper implements RowMapper<Film> {
     @Override
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Film film = new Film();
-        Set<Genre> genre = new HashSet<>();
+        LinkedHashSet<Genre> genre = new LinkedHashSet<>();
         Set<Long> usersLikes = new HashSet<>();
         FilmRating rating = new FilmRating();
 
@@ -33,7 +34,7 @@ public class FilmsRowMapper implements RowMapper<Film> {
         while (resultSet.next()) {
             Genre newGenre = new Genre();
 
-            newGenre.setId(resultSet.getLong("genre_id"));
+            newGenre.setId(resultSet.getInt("genre_id"));
             newGenre.setName(resultSet.getString("genre_name"));
             genre.add(newGenre);
             usersLikes.add((resultSet.getLong("user_id")));

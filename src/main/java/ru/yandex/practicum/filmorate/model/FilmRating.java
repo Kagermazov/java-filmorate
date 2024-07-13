@@ -6,6 +6,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class FilmRating {
-        int id;
+        Integer id;
         String name;
 }

@@ -8,6 +8,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 public class Genre implements Serializable {
-    Long id;
+    Integer id;
     String name;
 }

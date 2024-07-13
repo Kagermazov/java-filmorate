@@ -1,16 +1,20 @@
-DROP TABLE IF EXISTS FILMS_GENRE;
-DROP TABLE IF EXISTS FILMS_USERS;
-DROP TABLE IF EXISTS FILMS_MPA;
-DROP TABLE IF EXISTS FRIENDS;
-DROP TABLE IF EXISTS FILMS;
-DROP TABLE IF EXISTS MPA;
-DROP TABLE IF EXISTS USERS;
-DROP TABLE IF EXISTS GENRE;
+--DROP TABLE IF EXISTS FILMS_GENRE;
+--DROP TABLE IF EXISTS FILMS_USERS;
+--DROP TABLE IF EXISTS FILMS_MPA;
+--DROP TABLE IF EXISTS FRIENDS;
+--DROP TABLE IF EXISTS FILMS;
+--DROP TABLE IF EXISTS MPA;
+--DROP TABLE IF EXISTS USERS;
+--DROP TABLE IF EXISTS GENRE;
+
+--create an mpa table
+CREATE TABLE IF NOT EXISTS MPA (id bigint PRIMARY KEY,
+mpa_name varchar);
 
 --create a films table
 CREATE TABLE IF NOT EXISTS FILMS (id bigint generated always AS IDENTITY PRIMARY KEY,
 film_name varchar NOT NULL,
-rating int,
+rating bigint REFERENCES mpa(id),
 description varchar NOT NULL,
 release_date date NOT NULL,
 duration integer NOT NULL);
@@ -23,12 +27,8 @@ login varchar NOT NULL,
 birthday date NOT NULL);
 
 --create a genre table
-CREATE TABLE IF NOT EXISTS GENRE (id bigint generated always AS IDENTITY PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS GENRE (id bigint PRIMARY KEY,
 genre_name varchar);
-
---create a mpa table
-CREATE TABLE IF NOT EXISTS MPA (id bigint generated always AS IDENTITY PRIMARY KEY,
-mpa_name varchar);
 
 --create an join table films_genre
 CREATE TABLE IF NOT EXISTS FILMS_GENRE (films_genre_key bigint generated always AS IDENTITY PRIMARY KEY,

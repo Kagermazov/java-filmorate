@@ -4,7 +4,9 @@ import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,9 +17,14 @@ public class FilmMapper {
 
     public static FilmCreateDto mapToFilmDto(Film specificFilm) {
         FilmCreateDto dto = new FilmCreateDto();
-        Set<GenreDto> genreDtos = specificFilm.getGenres().stream()
-                        .map(GenreDtoMapper::mapToGenreDto)
-                                .collect(Collectors.toSet());
+        Set<Genre> filmGenres = specificFilm.getGenres();
+        LinkedHashSet<GenreDto> genreDtos = null;
+
+        if (filmGenres != null) {
+            genreDtos = specificFilm.getGenres().stream()
+                    .map(GenreDtoMapper::mapToGenreDto)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        }
 
         dto.setId(specificFilm.getId());
         dto.setName(specificFilm.getName());

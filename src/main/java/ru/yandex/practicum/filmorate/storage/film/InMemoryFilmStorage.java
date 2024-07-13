@@ -19,10 +19,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     private long counter;
 
     @Override
-    public Film addFilm(@NonNull Film newFilm) {
+    public long addFilm(@NonNull Film newFilm) {
         newFilm.setId(getNextId());
         this.films.put(newFilm.getId(), newFilm);
-        return newFilm;
+        return newFilm.getId();
     }
 
     @Override

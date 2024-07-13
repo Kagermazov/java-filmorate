@@ -4,14 +4,20 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmRating;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service("filmDbServiceImpl")
@@ -28,20 +34,62 @@ public class FilmDbServiceImpl implements FilmService {
 
     @Override
     public FilmCreateDto addFilm(@NonNull Film newFilm) {
-        return FilmMapper.mapToFilmDto(this.filmStorage.addFilm(newFilm));
+
+        validateMPA(newFilm.getMpa());
+        validateGenres(newFilm.getGenres());
+        newFilm.setId(this.filmStorage.addFilm(newFilm));
+        return FilmMapper.mapToFilmDto(newFilm);
+    }
+
+    private void validateGenres(Set<Genre> genres) {
+        Optional.ofNullable(genres)
+                .ifPresent(filmGenres -> {
+                    for (Genre filmGenre : filmGenres) {
+                        Integer idOfGenre = filmGenre.getId();
+                        if (idOfGenre == null || isGenrePresent(idOfGenre)) {
+                            throw new ValidationException(HttpStatus.BAD_REQUEST, "Fail genre");
+                        }
+                    }
+                });
+    }
+
+//    todo replace with sql query
+    private static boolean isGenrePresent(Integer idOfGenre) {
+        return idOfGenre > 6;
+    }
+
+    private void validateMPA(FilmRating mpa) {
+        try {
+            Integer mpaId = mpa.getId();
+
+            if (mpaId == null || isMpaPresent(mpaId)) {
+                throw new ValidationException(HttpStatus.BAD_REQUEST, "Fail MPA");
+            }
+        } catch (NullPointerException e) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "Fail MPA");
+        }
+    }
+
+//    todo replace with sql query
+    private static boolean isMpaPresent(Integer mpaId) {
+        return mpaId > 5;
     }
 
     @Override
     public FilmCreateDto updateFilm(@NonNull Film updatedFilm) {
-//        this.filmStorage.updateFilm(updatedFilm);
-//
-//        Long updatedFilmId = updatedFilm.getId();
-//
-//        log.info("The film with an id {} was updated", updatedFilmId);
-//        return this.filmStorage.getFilmById(Optional.ofNullable(updatedFilmId)
-//                .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-//                        "The film " + updatedFilm.getFilmName() + " doesn't have an ID")));
-        return null;
+        validateMPA(updatedFilm.getMpa());
+        validateGenres(updatedFilm.getGenres());
+        this.filmStorage.updateFilm(updatedFilm);
+
+        Long updatedFilmId = updatedFilm.getId();
+
+        log.info("The film with an id {} was updated", updatedFilmId);
+
+        return this.filmStorage.getAllFilms().stream()
+                .filter(film -> film.getId().equals(updatedFilmId))
+                .findFirst()
+                .map(FilmMapper::mapToFilmDto)
+                .get();
     }
 
     @Override

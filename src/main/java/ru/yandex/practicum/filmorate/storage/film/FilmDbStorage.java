@@ -9,14 +9,20 @@ import ru.yandex.practicum.filmorate.storage.BaseRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository("filmDbStorage")
 public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
-    public static final String ADD_FILM =
+    private static final String ADD_FILM_QUERY =
             "INSERT INTO films (film_name, rating, description, release_date, duration) VALUES (?, ?, ?, ?, ?);";
-    public static final String ADD_TO_FILMS_GENRE = "INSERT INTO films_genre (film_id, genre_id) VALUES (?, ?);";
-    public static final String GET_ALL = "SELECT films.*, " +
+    private static final String ADD_TO_FILMS_GENRE_QUERY = "INSERT INTO films_genre (film_id, genre_id) VALUES (?, ?);";
+    private static final String UPDATE_FILM_QUERY = "UPDATE films " +
+            "SET film_name = ?, " +
+            "rating = ?, " +
+            "description = ?, " +
+            "release_date = ?, " +
+            "duration = ? " +
+            "WHERE id = ?";
+    private static final String GET_ALL_FILMS_QUERY = "SELECT films.*, " +
             "genre.genre_name AS genre_id, " +
             "mpa.id AS mpa_id, " +
             "mpa.mpa_name, " +
@@ -33,41 +39,38 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     @Override
-    public Film addFilm(Film newFilm) {
-        long id = insert(ADD_FILM,
+    public long addFilm(Film newFilm) {
+
+        long id = insert(ADD_FILM_QUERY,
                 newFilm.getName(),
                 newFilm.getMpa().getId(),
                 newFilm.getDescription(),
                 newFilm.getReleaseDate(),
                 newFilm.getDuration());
 
-        newFilm.setId(id);
+        Optional.ofNullable(newFilm.getGenres())
+                .ifPresent(genres -> {
+                    for (Genre filmGenre : genres) {
+                        insert(ADD_TO_FILMS_GENRE_QUERY, newFilm.getId(), filmGenre.getId());
+                    }
+                });
 
-        Optional<Set<Genre>> optionalGenres = Optional.ofNullable(newFilm.getGenres());
-
-        if (optionalGenres.isPresent()) {
-            Set<Genre> genres = optionalGenres.get();
-
-            for (Genre genre_id : genres) {
-                insert(ADD_TO_FILMS_GENRE, newFilm.getId(), genre_id.getId());
-            }
-        }
-
-        return newFilm;
+        return id;
     }
 
     @Override
     public void updateFilm(Film updatedFilm) {
-        update(ADD_FILM,
+        update(UPDATE_FILM_QUERY,
                 updatedFilm.getName(),
-                updatedFilm.getMpa(),
+                updatedFilm.getMpa().getId(),
                 updatedFilm.getDescription(),
                 updatedFilm.getReleaseDate(),
-                updatedFilm.getDuration());;
+                updatedFilm.getDuration(),
+                updatedFilm.getId());
     }
 
     @Override
     public List<Film> getAllFilms() {
-        return jdbc.query(GET_ALL, mapper);
+        return jdbc.query(GET_ALL_FILMS_QUERY, mapper);
     }
 }
