@@ -14,14 +14,14 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
     private static final String ADD_USER_QUERY =
             "INSERT INTO users (email, user_name, login, birthday) VALUES (?, ?, ?, ?)";
     private static final String ADD_TO_FRIENDS_QUERY = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
-    private static final String GET_ALL_USER_QUERY = "SELECT users.id, " +
-            "users.login " +
-            "users.user_name, " +
-            "users.email, " +
-            "users.birthday, " +
-            "f.friend_id, " +
-            "FROM users " +
-            "LEFT JOIN friends f ON users.id = f.user_id;";
+    private static final String GET_ALL_USER_QUERY = "SELECT u.id AS user_id, " +
+            "u.login, " +
+            "u.user_name, " +
+            "u.email, " +
+            "u.birthday, " +
+            "f.friend_id " +
+            "FROM users u " +
+            "LEFT JOIN friends f ON u.id = f.user_id;";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);

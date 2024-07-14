@@ -41,7 +41,9 @@ public class UserDbServiceImpl implements UserService{
 
     @Override
     public List<UserCreateDto> findAllUsers() {
-        return List.of();
+        return this.storage.findAllUsers().stream()
+                .map(UserCreateDtoMapper::maptoUserCreateDto)
+                .toList();
     }
 
     @Override

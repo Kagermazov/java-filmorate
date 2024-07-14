@@ -18,13 +18,13 @@ public class UserRowMapper implements RowMapper {
         Set<Long> friends = new HashSet<>();
 
         mappedUser.setId(resultSet.getLong("id"));
-        mappedUser.setEmail(resultSet.getString("email"));
-        mappedUser.setName(resultSet.getString("user_name"));
         mappedUser.setLogin(resultSet.getString("login"));
+        mappedUser.setName(resultSet.getString("user_name"));
+        mappedUser.setEmail(resultSet.getString("email"));
         mappedUser.setBirthday(resultSet.getDate("birthday").toLocalDate());
 
         while(resultSet.next()) {
-            friends.add(resultSet.getLong("friends"));
+            friends.add(resultSet.getLong("friend_id"));
         }
 
         mappedUser.setFriends(friends);
