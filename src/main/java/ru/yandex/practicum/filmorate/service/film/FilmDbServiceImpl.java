@@ -23,13 +23,13 @@ import java.util.Set;
 @Service("filmDbServiceImpl")
 public class FilmDbServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
-//    private final UserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public FilmDbServiceImpl(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                             UserStorage userStorage) {
+                             @Qualifier("userDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
-//        this.userStorage = userStorage;
+        this.userStorage = userStorage;
     }
 
     @Override

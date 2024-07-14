@@ -5,9 +5,12 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.UserCreateDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.UserCreateDtoMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -24,12 +27,12 @@ public class UserServiceImpl implements UserService {
     private final UserStorage storage;
 
     @Autowired
-    public UserServiceImpl(UserStorage storage) {
+    public UserServiceImpl(@Qualifier("inMemoryUserStorage") UserStorage storage) {
         this.storage = storage;
     }
 
     @Override
-    public User addUser(@NonNull User newUser) {
+    public UserCreateDto addUser(@NonNull User newUser) {
         validate(newUser);
         setLoginAsNameIfNameIsAbsent(newUser);
         this.storage.addUser(newUser);
@@ -37,13 +40,18 @@ public class UserServiceImpl implements UserService {
         Long newUserId = newUser.getId();
 
         log.info("The user with id {} was created", newUserId);
-        return this.storage.getUserById(Optional.ofNullable(newUserId)
-                .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "The user with login " + newUser.getLogin() + " doesn't have an ID")));
+        return UserCreateDtoMapper.maptoUserCreateDto(getUserById(newUserId));
+    }
+
+    private User getUserById(Long newUserId) {
+        return this.storage.findAllUsers().stream()
+                .filter(user -> user.getId() == newUserId)
+                .findFirst()
+                .get();
     }
 
     @Override
-    public User updateUser(@NonNull User updatedUser) {
+    public UserCreateDto updateUser(@NonNull User updatedUser) {
         validate(updatedUser);
         setLoginAsNameIfNameIsAbsent(updatedUser);
         this.storage.updateUser(updatedUser);
@@ -51,22 +59,20 @@ public class UserServiceImpl implements UserService {
         Long updatedUserId = updatedUser.getId();
 
         log.trace("The user with id {} was updated", updatedUserId);
-        return this.storage.getUserById(Optional.ofNullable(updatedUserId)
-                .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "The user with login " + updatedUser.getLogin() + " doesn't have an ID")));
+        return UserCreateDtoMapper.maptoUserCreateDto(getUserById(updatedUserId));
     }
 
     @Override
-    public List<User> findAllUsers() {
+    public List<UserCreateDto> findAllUsers() {
         log.info("The user list was created");
-        return this.storage.findAllUsers();
+        return this.storage.findAllUsers().stream()
+                .map(UserCreateDtoMapper::maptoUserCreateDto)
+                .toList();
     }
 
     @Override
-    public List<User> findAllUserFriends(long userId) {
-        Set<Long> userFriends = Optional.ofNullable(this.storage.getUserById(userId))
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "User with id " + userId + " doesn't exist")).getFriends();
+    public List<UserCreateDto> findAllUserFriends(long userId) {
+        Set<Long> userFriends = getUserById(userId).getFriends();
 
         if (userFriends == null) {
             return List.of();
@@ -74,18 +80,15 @@ public class UserServiceImpl implements UserService {
 
         log.info("All users list was created");
         return userFriends.stream()
-                .map(this.storage::getUserById)
+                .map(this::getUserById)
+                .map(UserCreateDtoMapper::maptoUserCreateDto)
                 .toList();
     }
 
     @Override
-    public @Nullable User addFriend(long userId, long newFriendId) {
-        User firstUser = Optional.ofNullable(this.storage.getUserById(userId))
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "User with id " + userId + " doesn't exist"));
-        User newFriend = Optional.ofNullable(this.storage.getUserById(newFriendId))
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "User with id " + userId + " doesn't exist"));
+    public @Nullable UserCreateDto addFriend(long userId, long newFriendId) {
+        User firstUser = getUserById(userId);
+        User newFriend = getUserById(newFriendId);
 
         if (firstUser.getFriends() == null) {
             firstUser.setFriends(new HashSet<>());
@@ -97,25 +100,26 @@ public class UserServiceImpl implements UserService {
             this.storage.updateUser(firstUser);
             this.storage.updateUser(newFriend);
             log.info("The user with id {} was added to the user with id {} friends", newFriendId, userId);
-            return this.storage.getUserById(userId);
+            return UserCreateDtoMapper.maptoUserCreateDto(getUserById(userId));
         }
 
         return null;
     }
 
     @Override
-    public List<User> showCommonFriends(long userId, long userIdToCompare) {
-        Set<Long> intersection = Optional.ofNullable(this.storage.getUserById(userId).getFriends())
+    public List<UserCreateDto> showCommonFriends(long userId, long userIdToCompare) {
+        Set<Long> intersection = Optional.ofNullable(getUserById(userId).getFriends())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userId + " doesn't have friends"));
-        Set<Long> secondUserFriends = Optional.ofNullable(this.storage.getUserById(userIdToCompare).getFriends())
+        Set<Long> secondUserFriends = Optional.ofNullable(getUserById(userIdToCompare).getFriends())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userIdToCompare + " doesn't have friends"));
 
         if (intersection.retainAll(secondUserFriends)) {
             log.info("The list of common fiends user with id {} and user with id {} was created", userId, userIdToCompare);
             return intersection.stream()
-                    .map(this.storage::getUserById)
+                    .map(this::getUserById)
+                    .map(UserCreateDtoMapper::maptoUserCreateDto)
                     .toList();
         }
 
@@ -124,13 +128,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User unfriend(long userId, long userToUnfriendId) {
-        User userToReturn = Optional.ofNullable(this.storage.getUserById(userId))
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "There's no user with id " + userId));
-        User userToUnfriend = Optional.ofNullable(this.storage.getUserById(userToUnfriendId))
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "There's no user with id " + userToUnfriendId));
+    public UserCreateDto unfriend(long userId, long userToUnfriendId) {
+        User userToReturn = getUserById(userId);
+        User userToUnfriend = getUserById(userToUnfriendId);
         Set<Long> userToReturnFriends = userToReturn.getFriends();
         Set<Long> userToUnfriendFriends = userToUnfriend.getFriends();
 
@@ -142,11 +142,11 @@ public class UserServiceImpl implements UserService {
             userToReturnFriends.remove(userToUnfriendId);
             userToUnfriendFriends.remove(userId);
             log.info("The user with id {} was unfriend from user with id {}", userToUnfriendId, userId);
-            return userToReturn;
+            return UserCreateDtoMapper.maptoUserCreateDto(userToReturn);
         }
 
         log.info("The user with id {} isn't user with id {} friend", userToUnfriendId, userId);
-        return userToReturn;
+        return UserCreateDtoMapper.maptoUserCreateDto(userToReturn);
     }
 
     private void validate(@NonNull User userToCheck) {

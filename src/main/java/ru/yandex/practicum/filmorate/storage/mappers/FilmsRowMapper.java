@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film.mappers;
+package ru.yandex.practicum.filmorate.storage.mappers;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
@@ -14,9 +14,10 @@ import java.util.Set;
 
 @Component
 public class FilmsRowMapper implements RowMapper<Film> {
+
     @Override
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        Film film = new Film();
+        Film mappedFilm = new Film();
         LinkedHashSet<Genre> genre = new LinkedHashSet<>();
         Set<Long> usersLikes = new HashSet<>();
         FilmRating rating = new FilmRating();
@@ -24,12 +25,12 @@ public class FilmsRowMapper implements RowMapper<Film> {
         rating.setId(resultSet.getInt("mpa_id"));
         rating.setName(resultSet.getString("mpa_name"));
 
-        film.setId(resultSet.getLong("id"));
-        film.setName(resultSet.getString("film_name"));
-        film.setMpa(rating);
-        film.setDescription(resultSet.getString("description"));
-        film.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
-        film.setDuration(resultSet.getInt("duration"));
+        mappedFilm.setId(resultSet.getLong("id"));
+        mappedFilm.setName(resultSet.getString("film_name"));
+        mappedFilm.setMpa(rating);
+        mappedFilm.setDescription(resultSet.getString("description"));
+        mappedFilm.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
+        mappedFilm.setDuration(resultSet.getInt("duration"));
 
         while (resultSet.next()) {
             Genre newGenre = new Genre();
@@ -40,8 +41,8 @@ public class FilmsRowMapper implements RowMapper<Film> {
             usersLikes.add((resultSet.getLong("user_id")));
         }
 
-        film.setGenres(genre);
-        film.setUsersLikes(usersLikes);
-        return film;
+        mappedFilm.setGenres(genre);
+        mappedFilm.setUsersLikes(usersLikes);
+        return mappedFilm;
     }
 }

@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -26,7 +27,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Autowired
     public FilmServiceImpl(@Qualifier("inMemoryFilmStorage") FilmStorage filmStorage,
-                           UserStorage userStorage) {
+                           @Qualifier("inMemoryUserStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -99,7 +100,12 @@ public class FilmServiceImpl implements FilmService {
     }
 
     private void checkIfUserExist(long userId) {
-        if (this.userStorage.getUserById(userId) == null) {
+        User userToCHeck = this.userStorage.findAllUsers().stream()
+                .filter(user -> user.getId() == userId)
+                .findFirst()
+                .get();
+
+        if (userToCHeck == null) {
             throw new ValidationException(HttpStatus.NOT_FOUND,
                     "The user with id " + userId + " doesn't exist");
         }

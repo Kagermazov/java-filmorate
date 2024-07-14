@@ -13,15 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Component
+@Component("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
     private long counter;
 
     @Override
-    public void addUser(@NonNull User newUser) {
+    public long addUser(@NonNull User newUser) {
         newUser.setId(getNextId());
         this.users.put(newUser.getId(), newUser);
+        return newUser.getId();
     }
 
     @Override
@@ -40,12 +41,10 @@ public class InMemoryUserStorage implements UserStorage {
         return this.users.values().stream().toList();
     }
 
-    @Override
     public @Nullable User getUserById(long userId) {
         return this.users.get(userId);
     }
 
-    @Override
     public void deleteUsers() {
         this.users.clear();
     }

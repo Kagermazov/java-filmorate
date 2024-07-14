@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
@@ -12,16 +12,16 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-public class User {
+public class UserCreateDto {
     @Nullable
     private Long id;
+    @NotBlank(message = "An email is mandatory")
+    @Email
+    private String email;
     @NotBlank(message = "A login is mandatory")
     private String login;
     @Nullable
     private String name;
-    @NotBlank(message = "An email is mandatory")
-    @Email
-    private String email;
     @NonNull
     private LocalDate birthday;
     @Nullable
