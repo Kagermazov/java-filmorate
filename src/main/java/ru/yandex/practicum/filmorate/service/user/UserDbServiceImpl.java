@@ -36,11 +36,22 @@ public class UserDbServiceImpl implements UserService{
 
     @Override
     public UserCreateDto updateUser(User updatedUser) {
-        return null;
+        this.storage.updateUser(updatedUser);
+
+        Long updatedUserId = updatedUser.getId();
+
+        log.info("The user with an id {} was updated", updatedUserId);
+
+        return this.storage.findAllUsers().stream()
+                .filter(user -> user.getId().equals(updatedUserId))
+                .findFirst()
+                .map(UserCreateDtoMapper::maptoUserCreateDto)
+                .get();
     }
 
     @Override
     public List<UserCreateDto> findAllUsers() {
+        log.info("The user list was created");
         return this.storage.findAllUsers().stream()
                 .map(UserCreateDtoMapper::maptoUserCreateDto)
                 .toList();

@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @Service("filmDbServiceImpl")
@@ -41,11 +40,11 @@ public class FilmDbServiceImpl implements FilmService {
         return FilmMapper.mapToFilmDto(newFilm);
     }
 
-    private void validateGenres(Set<Genre> genres) {
+    private void validateGenres(List<Genre> genres) {
         Optional.ofNullable(genres)
                 .ifPresent(filmGenres -> {
                     for (Genre filmGenre : filmGenres) {
-                        Integer idOfGenre = filmGenre.getId();
+                        Long idOfGenre = filmGenre.getId();
                         if (idOfGenre == null || isGenrePresent(idOfGenre)) {
                             throw new ValidationException(HttpStatus.BAD_REQUEST, "Fail genre");
                         }
@@ -54,13 +53,13 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
 //    todo replace with sql query
-    private static boolean isGenrePresent(Integer idOfGenre) {
+    private static boolean isGenrePresent(Long idOfGenre) {
         return idOfGenre > 6;
     }
 
     private void validateMPA(FilmRating mpa) {
         try {
-            Integer mpaId = mpa.getId();
+            Long mpaId = mpa.getId();
 
             if (mpaId == null || isMpaPresent(mpaId)) {
                 throw new ValidationException(HttpStatus.BAD_REQUEST, "Fail MPA");
@@ -71,7 +70,7 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
 //    todo replace with sql query
-    private static boolean isMpaPresent(Integer mpaId) {
+    private static boolean isMpaPresent(Long mpaId) {
         return mpaId > 5;
     }
 
@@ -95,6 +94,7 @@ public class FilmDbServiceImpl implements FilmService {
     @Override
     public List<FilmCreateDto> getAllFilms() {
         log.info("The film list was created");
+
         return this.filmStorage.getAllFilms().stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();

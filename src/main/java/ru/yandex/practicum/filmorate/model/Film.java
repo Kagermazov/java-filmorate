@@ -10,6 +10,7 @@ import lombok.NonNull;
 import ru.yandex.practicum.filmorate.service.film.ReleaseDateConstraint;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -38,7 +39,7 @@ public class Film {
     private Integer duration;
 
     @Nullable
-    private Set<Genre> genres;
+    private List<Genre> genres;
 
     @Nullable
     private Set<Long> usersLikes;

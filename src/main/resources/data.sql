@@ -1,4 +1,4 @@
---populate an genre table
+--populate a genre table
 
 MERGE INTO genre KEY (id)
 VALUES
@@ -8,6 +8,8 @@ VALUES
     (4, 'Триллер'),
     (5, 'Документальный'),
     (6, 'Боевик');
+
+--populate a mpa table
 
 MERGE INTO mpa KEY (id)
 VALUES

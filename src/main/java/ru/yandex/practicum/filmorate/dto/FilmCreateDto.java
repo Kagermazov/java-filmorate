@@ -10,7 +10,7 @@ import lombok.NonNull;
 import ru.yandex.practicum.filmorate.service.film.ReleaseDateConstraint;
 
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -39,7 +39,7 @@ public class FilmCreateDto {
     private Integer duration;
 
     @Nullable
-    private LinkedHashSet<GenreDto> genres;
+    private List<GenreDto> genres;
 
     @Nullable
     private Set<Long> usersLikes;

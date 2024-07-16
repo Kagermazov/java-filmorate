@@ -1,48 +1,45 @@
 package ru.yandex.practicum.filmorate.storage.mappers;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmRating;
-import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
+@Slf4j
 @Component
-public class FilmsRowMapper implements RowMapper<Film> {
+public class FilmsRowMapper implements RowMapper<FilmsRowMapper.FilmRowDto> {
+
+    @Data
+    @NoArgsConstructor
+    public static class FilmRowDto {
+        Long id;
+        String name;
+        Long mpaId;
+        Long genreId;
+        String description;
+        Date releaseDate;
+        Integer duration;
+        Long userId;
+    }
 
     @Override
-    public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        Film mappedFilm = new Film();
-        LinkedHashSet<Genre> genre = new LinkedHashSet<>();
-        Set<Long> usersLikes = new HashSet<>();
-        FilmRating rating = new FilmRating();
+    public FilmRowDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+        FilmRowDto dto = new FilmRowDto();
 
-        rating.setId(resultSet.getInt("mpa_id"));
-        rating.setName(resultSet.getString("mpa_name"));
+        dto.setId(resultSet.getLong("id"));
+        dto.setName(resultSet.getString("film_name"));
+        dto.setMpaId(resultSet.getLong("rating"));
+        dto.setDescription(resultSet.getString("description"));
+        dto.setReleaseDate(resultSet.getDate("release_date"));
+        dto.setDuration(resultSet.getInt("duration"));
+        dto.setGenreId(resultSet.getLong("genre_id"));
+        dto.setUserId(resultSet.getLong("user_id"));
 
-        mappedFilm.setId(resultSet.getLong("id"));
-        mappedFilm.setName(resultSet.getString("film_name"));
-        mappedFilm.setMpa(rating);
-        mappedFilm.setDescription(resultSet.getString("description"));
-        mappedFilm.setReleaseDate(resultSet.getDate("release_date").toLocalDate());
-        mappedFilm.setDuration(resultSet.getInt("duration"));
-
-        while (resultSet.next()) {
-            Genre newGenre = new Genre();
-
-            newGenre.setId(resultSet.getInt("genre_id"));
-            newGenre.setName(resultSet.getString("genre_name"));
-            genre.add(newGenre);
-            usersLikes.add((resultSet.getLong("user_id")));
-        }
-
-        mappedFilm.setGenres(genre);
-        mappedFilm.setUsersLikes(usersLikes);
-        return mappedFilm;
+        return dto;
     }
 }

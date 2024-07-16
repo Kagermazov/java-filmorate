@@ -36,12 +36,6 @@ film_id bigint REFERENCES films(id),
 genre_id integer REFERENCES genre(id),
 CONSTRAINT film_genre_unique UNIQUE (film_id, genre_id));
 
---create an join table films_mpa
-CREATE TABLE IF NOT EXISTS FILMS_MPA (films_mpa_key bigint generated always AS IDENTITY PRIMARY KEY,
-film_id bigint REFERENCES films(id),
-mpa_id integer REFERENCES mpa(id),
-CONSTRAINT film_mpa_unique UNIQUE (film_id, mpa_id));
-
 --create an join table films_users
 CREATE TABLE IF NOT EXISTS FILMS_USERS (FILMS_USERS_key bigint generated always AS IDENTITY PRIMARY KEY,
 film_id bigint REFERENCES films(id),
