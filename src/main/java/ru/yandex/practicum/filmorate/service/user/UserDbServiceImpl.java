@@ -36,9 +36,16 @@ public class UserDbServiceImpl implements UserService{
 
     @Override
     public UserCreateDto updateUser(User updatedUser) {
-        this.storage.updateUser(updatedUser);
-
         Long updatedUserId = updatedUser.getId();
+        List<Long> usersId = this.storage.findAllUsers().stream()
+                .map(User::getId)
+                .toList();
+
+        if (!usersId.contains(updatedUserId)) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with id " + updatedUserId);
+        }
+
+        this.storage.updateUser(updatedUser);
 
         log.info("The user with an id {} was updated", updatedUserId);
 

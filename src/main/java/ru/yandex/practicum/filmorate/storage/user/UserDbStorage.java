@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
+import ru.yandex.practicum.filmorate.storage.mappers.user.GetAllUsersRowMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +28,11 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
             "f.friend_id " +
             "FROM users u " +
             "LEFT JOIN friends f ON u.id = f.user_id;";
+    private ResultSetExtractor<List<User>> getAllUsersMapper;
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
         super(jdbc, mapper);
+        this.getAllUsersMapper = new GetAllUsersRowMapper();
     }
 
     @Override
@@ -68,6 +72,6 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 
     @Override
     public List<User> findAllUsers() {
-        return jdbc.query(GET_ALL_USER_QUERY, mapper);
+        return jdbc.query(GET_ALL_USER_QUERY, this.getAllUsersMapper);
     }
 }

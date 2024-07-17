@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.mappers;
+package ru.yandex.practicum.filmorate.storage.mappers.film;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

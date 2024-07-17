@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmRating;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
-import ru.yandex.practicum.filmorate.storage.mappers.FilmsRowMapper;
+import ru.yandex.practicum.filmorate.storage.mappers.film.FilmsRowMapper;
 
 import java.util.LinkedHashSet;
 import java.util.List;
