@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.mappers.mpa.MpaRowMapper;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -31,5 +32,9 @@ public class MpaDbStorage {
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
+    }
+
+    public List<Mpa> findAllMpa() {
+        return this.jdbc.query(FIND_ALL_QUERY, mapper);
     }
 }

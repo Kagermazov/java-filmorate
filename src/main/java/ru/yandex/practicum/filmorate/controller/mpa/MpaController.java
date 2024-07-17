@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/mpa")
 public class MpaController {
@@ -24,5 +26,11 @@ public class MpaController {
     @ResponseStatus(HttpStatus.OK)
     public MpaDto findMpaName(@PathVariable Long id) {
         return service.findMpaName(id);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<MpaDto> findAllMpa() {
+        return service.findAllMpa();
     }
 }
