@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Data
-public class GenreDto {
+@AllArgsConstructor
+public class MpaForFilmDto {
     private Long id;
 }

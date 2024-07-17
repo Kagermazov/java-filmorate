@@ -24,7 +24,7 @@ public class FilmCreateDto {
     private String name;
 
     @Nullable
-    private MpaDto mpa;
+    private MpaForFilmDto mpa;
 
     @Size(max = 200, message = "A description length is more than 200 symbols")
     @NotBlank(message = "A film description in mandatory")

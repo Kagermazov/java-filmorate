@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.mapper;
 
 import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.dto.MpaForFilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -26,7 +26,7 @@ public class FilmMapper {
 
         dto.setId(specificFilm.getId());
         dto.setName(specificFilm.getName());
-        dto.setMpa(new MpaDto(specificFilm.getMpa().getId()));
+        dto.setMpa(new MpaForFilmDto(specificFilm.getMpa().getId()));
         dto.setDescription(specificFilm.getDescription());
         dto.setReleaseDate(specificFilm.getReleaseDate());
         dto.setDuration(specificFilm.getDuration());
