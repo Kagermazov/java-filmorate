@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/genres")
 public class GenreController {
@@ -24,5 +26,11 @@ public class GenreController {
     @ResponseStatus(HttpStatus.OK)
     public GenreDto findGenreById(@PathVariable Long id) {
         return service.findGenreById(id);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<GenreDto> findAllGenres() {
+        return service.findAllGenres();
     }
 }
