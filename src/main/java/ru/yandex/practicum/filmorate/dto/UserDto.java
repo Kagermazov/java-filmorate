@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-public class UserCreateDto {
+public class UserDto {
     @Nullable
     private Long id;
     @NotBlank(message = "An email is mandatory")

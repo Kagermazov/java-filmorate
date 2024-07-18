@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.UserCreateDto;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserCreateDtoMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserCreateDto addUser(@NonNull User newUser) {
+    public UserDto addUser(@NonNull User newUser) {
         validate(newUser);
         setLoginAsNameIfNameIsAbsent(newUser);
         this.storage.addUser(newUser);
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserCreateDto updateUser(@NonNull User updatedUser) {
+    public UserDto updateUser(@NonNull User updatedUser) {
         validate(updatedUser);
         setLoginAsNameIfNameIsAbsent(updatedUser);
         this.storage.updateUser(updatedUser);
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserCreateDto> findAllUsers() {
+    public List<UserDto> findAllUsers() {
         log.info("The user list was created");
         return this.storage.findAllUsers().stream()
                 .map(UserCreateDtoMapper::maptoUserCreateDto)
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserCreateDto> findAllUserFriends(long userId) {
+    public List<UserDto> findAllUserFriends(long userId) {
         Set<Long> userFriends = getUserById(userId).getFriends();
 
         if (userFriends == null) {
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public @Nullable UserCreateDto addFriend(long userId, long newFriendId) {
+    public @Nullable UserDto addFriend(long userId, long newFriendId) {
         User firstUser = getUserById(userId);
         User newFriend = getUserById(newFriendId);
 
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserCreateDto> showCommonFriends(long userId, long userIdToCompare) {
+    public List<UserDto> showCommonFriends(long userId, long userIdToCompare) {
         Set<Long> intersection = Optional.ofNullable(getUserById(userId).getFriends())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userId + " doesn't have friends"));
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserCreateDto unfriend(long userId, long userToUnfriendId) {
+    public UserDto unfriend(long userId, long userToUnfriendId) {
         User userToReturn = getUserById(userId);
         User userToUnfriend = getUserById(userToUnfriendId);
         Set<Long> userToReturnFriends = userToReturn.getFriends();

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -22,17 +22,15 @@ import java.util.Optional;
 @Service("filmDbServiceImpl")
 public class FilmDbServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
 
     @Autowired
     public FilmDbServiceImpl(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                              @Qualifier("userDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
     }
 
     @Override
-    public FilmCreateDto addFilm(@NonNull Film newFilm) {
+    public FilmDto addFilm(@NonNull Film newFilm) {
 
         validateMPA(newFilm.getMpa());
         validateGenres(newFilm.getGenres());
@@ -75,7 +73,7 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmCreateDto updateFilm(@NonNull Film updatedFilm) {
+    public FilmDto updateFilm(@NonNull Film updatedFilm) {
         validateMPA(updatedFilm.getMpa());
         validateGenres(updatedFilm.getGenres());
         this.filmStorage.updateFilm(updatedFilm);
@@ -92,7 +90,7 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
     @Override
-    public List<FilmCreateDto> getAllFilms() {
+    public List<FilmDto> getAllFilms() {
         log.info("The film list was created");
 
         return this.filmStorage.getAllFilms().stream()
@@ -101,7 +99,7 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmCreateDto addLike(long userId, long filmId) {
+    public FilmDto addLike(long userId, long filmId) {
 //        Film expectedFilm = getOrThrow(filmId);
 //
 //        checkIfUserExist(userId);
@@ -122,7 +120,7 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmCreateDto removeLike(long filmId, long userId) {
+    public FilmDto removeLike(long filmId, long userId) {
 //        Film expectedFilm = getOrThrow(filmId);
 //
 //        checkIfUserExist(userId);
@@ -148,7 +146,7 @@ public class FilmDbServiceImpl implements FilmService {
 //    }
 
     @Override
-    public List<FilmCreateDto> findPopularFilms(Integer count) {
+    public List<FilmDto> findPopularFilms(Integer count) {
 //        log.info("Popular films list is created with limit of {}", count);
 //        return this.filmStorage.findAllFilms().stream()
 //                .filter(film -> film.getUsersLikes() != null)

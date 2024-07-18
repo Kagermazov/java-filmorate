@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import ru.yandex.practicum.filmorate.dto.UserCreateDto;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Set;
@@ -10,8 +10,8 @@ public class UserCreateDtoMapper {
     private UserCreateDtoMapper() {
     }
 
-    public static UserCreateDto maptoUserCreateDto(User specificUser) {
-        UserCreateDto dto = new UserCreateDto();
+    public static UserDto maptoUserCreateDto(User specificUser) {
+        UserDto dto = new UserDto();
         Set<Long> friends = specificUser.getFriends();
 
         dto.setId(specificUser.getId());

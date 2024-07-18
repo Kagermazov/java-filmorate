@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-public class FilmCreateDto {
+public class FilmDto {
     @Nullable
     @Positive
     private Long id;

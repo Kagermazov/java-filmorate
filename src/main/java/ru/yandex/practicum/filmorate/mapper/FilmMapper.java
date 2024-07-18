@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.dto.MpaForFilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,8 +13,8 @@ public class FilmMapper {
     private FilmMapper() {
     }
 
-    public static FilmCreateDto mapToFilmDto(Film specificFilm) {
-        FilmCreateDto dto = new FilmCreateDto();
+    public static FilmDto mapToFilmDto(Film specificFilm) {
+        FilmDto dto = new FilmDto();
         List<Genre> filmGenres = specificFilm.getGenres();
         List<GenreDto> genreDtos = null;
 

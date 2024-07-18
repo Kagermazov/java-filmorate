@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.UserCreateDto;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserCreateDtoMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -26,7 +26,7 @@ public class UserDbServiceImpl implements UserService{
     }
 
     @Override
-    public UserCreateDto addUser(User newUser) {
+    public UserDto addUser(User newUser) {
         validate(newUser);
         long id = this.storage.addUser(newUser);
 
@@ -35,7 +35,7 @@ public class UserDbServiceImpl implements UserService{
     }
 
     @Override
-    public UserCreateDto updateUser(User updatedUser) {
+    public UserDto updateUser(User updatedUser) {
         Long updatedUserId = updatedUser.getId();
         List<Long> usersId = this.storage.findAllUsers().stream()
                 .map(User::getId)
@@ -57,7 +57,7 @@ public class UserDbServiceImpl implements UserService{
     }
 
     @Override
-    public List<UserCreateDto> findAllUsers() {
+    public List<UserDto> findAllUsers() {
         log.info("The user list was created");
         return this.storage.findAllUsers().stream()
                 .map(UserCreateDtoMapper::maptoUserCreateDto)
@@ -65,22 +65,22 @@ public class UserDbServiceImpl implements UserService{
     }
 
     @Override
-    public List<UserCreateDto> findAllUserFriends(long userId) {
+    public List<UserDto> findAllUserFriends(long userId) {
         return List.of();
     }
 
     @Override
-    public UserCreateDto addFriend(long userId, long newFriendId) {
+    public UserDto addFriend(long userId, long newFriendId) {
         return null;
     }
 
     @Override
-    public List<UserCreateDto> showCommonFriends(long userId, long userIdToCompare) {
+    public List<UserDto> showCommonFriends(long userId, long userIdToCompare) {
         return List.of();
     }
 
     @Override
-    public UserCreateDto unfriend(long userId, long userToUnfriendId) {
+    public UserDto unfriend(long userId, long userToUnfriendId) {
         return null;
     }
 

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmCreateDto;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -33,7 +33,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmCreateDto addFilm(@NonNull Film newFilm) {
+    public FilmDto addFilm(@NonNull Film newFilm) {
         this.filmStorage.addFilm(newFilm);
 
         Long newFilmId = newFilm.getId();
@@ -44,7 +44,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmCreateDto updateFilm(@NonNull Film updatedFilm) {
+    public FilmDto updateFilm(@NonNull Film updatedFilm) {
         this.filmStorage.updateFilm(updatedFilm);
 
         Long updatedFilmId = updatedFilm.getId();
@@ -54,7 +54,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<FilmCreateDto> getAllFilms() {
+    public List<FilmDto> getAllFilms() {
         log.info("The film list was created");
         return this.filmStorage.getAllFilms().stream()
                 .map(FilmMapper::mapToFilmDto)
@@ -62,7 +62,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmCreateDto addLike(long userId, long filmId) {
+    public FilmDto addLike(long userId, long filmId) {
         Film expectedFilm = this.filmStorage.getAllFilms().stream()
                 .filter(film -> film.getId() == filmId)
                 .findAny()
@@ -85,7 +85,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmCreateDto removeLike(long filmId, long userId) {
+    public FilmDto removeLike(long filmId, long userId) {
         Film expectedFilm = this.filmStorage.getAllFilms().stream()
                 .filter(film -> film.getId() == filmId)
                 .findAny()
@@ -112,7 +112,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<FilmCreateDto> findPopularFilms(Integer count) {
+    public List<FilmDto> findPopularFilms(Integer count) {
         log.info("Popular films list is created with limit of {}", count);
         return this.filmStorage.getAllFilms().stream()
                 .filter(film -> film.getUsersLikes() != null)

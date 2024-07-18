@@ -7,4 +7,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class GenreDto {
     private Long id;
+    private String name;
 }
