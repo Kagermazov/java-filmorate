@@ -45,7 +45,13 @@ public class InMemoryFilmStorage implements FilmStorage {
         return this.films.values().stream().toList();
     }
 
-    public Optional<Film> getFilmById(long filmId) {
+    @Override
+    public void addLike(Long filmId, Long userId) {
+
+    }
+
+    @Override
+    public Optional<Film> getFilmById(Long filmId) {
         return Optional.ofNullable(this.films.get(filmId));
     }
 

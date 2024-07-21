@@ -2,31 +2,24 @@ package ru.yandex.practicum.filmorate.storage.mappers.user;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.user.UserRowDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
 
 @Component
-public class UserRowMapper implements RowMapper<User> {
+public class UserRowMapper implements RowMapper<UserRowDto> {
 
     @Override
-    public User mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        User mappedUser = new User();
-        Set<Long> friends = new HashSet<>();
+    public UserRowDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+        UserRowDto dto = new UserRowDto();
 
-        while(resultSet.next()) {
-            mappedUser.setId(resultSet.getLong("id"));
-            mappedUser.setLogin(resultSet.getString("login"));
-            mappedUser.setName(resultSet.getString("user_name"));
-            mappedUser.setEmail(resultSet.getString("email"));
-            mappedUser.setBirthday(resultSet.getDate("birthday").toLocalDate());
-        }
-
-        friends.add(resultSet.getLong("friend_id"));
-        mappedUser.setFriends(friends);
-        return mappedUser;
+        dto.setId(resultSet.getLong("id"));
+        dto.setLogin(resultSet.getString("login"));
+        dto.setName(resultSet.getString("user_name"));
+        dto.setEmail(resultSet.getString("email"));
+        dto.setBirthday(resultSet.getDate("birthday").toLocalDate());
+        dto.setFriendId(resultSet.getLong("friend_id"));
+        return dto;
     }
 }

@@ -35,7 +35,7 @@ public class LoggingFilter extends GenericFilterBean {
             // Log the HTTP request
             String requestBody = new String(wrappedRequest.getContentAsByteArray());
             LOGGER.info("HTTP Request - {} {} : {}", req.getMethod(), req.getRequestURI(), requestBody);
-            
+
             // Ensure to copy content from wrapped response to original response
             wrappedResponse.copyBodyToResponse();
         }

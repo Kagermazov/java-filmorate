@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
@@ -49,8 +49,8 @@ public class UserController {
 
     @PutMapping("{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto addFriend(@PathVariable long id, @PathVariable long friendId) {
-        return service.addFriend(id, friendId);
+    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+        service.addFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")

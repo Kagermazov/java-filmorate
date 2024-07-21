@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.mapper.UserCreateDtoMapper;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -17,27 +17,27 @@ import java.util.List;
 
 @Slf4j
 @Service("userDbServiceImpl")
-public class UserDbServiceImpl implements UserService{
+public class UserDbServiceImpl implements UserService {
     private final UserStorage storage;
 
     @Autowired
-    public UserDbServiceImpl(@Qualifier("userDbStorage")UserStorage storage) {
-        this.storage = storage;
+    public UserDbServiceImpl(@Qualifier("userDbStorage") UserStorage storageDb) {
+        storage = storageDb;
     }
 
     @Override
     public UserDto addUser(User newUser) {
         validate(newUser);
-        long id = this.storage.addUser(newUser);
+        Long id = storage.addUser(newUser);
 
         newUser.setId(id);
-        return UserCreateDtoMapper.maptoUserCreateDto(newUser);
+        return UserMapper.maptoUserCreateDto(newUser);
     }
 
     @Override
     public UserDto updateUser(User updatedUser) {
         Long updatedUserId = updatedUser.getId();
-        List<Long> usersId = this.storage.findAllUsers().stream()
+        List<Long> usersId = storage.findAllUsers().stream()
                 .map(User::getId)
                 .toList();
 
@@ -45,22 +45,21 @@ public class UserDbServiceImpl implements UserService{
             throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with id " + updatedUserId);
         }
 
-        this.storage.updateUser(updatedUser);
+        storage.updateUser(updatedUser);
 
         log.info("The user with an id {} was updated", updatedUserId);
 
-        return this.storage.findAllUsers().stream()
+        return storage.findAllUsers().stream()
                 .filter(user -> user.getId().equals(updatedUserId))
                 .findFirst()
-                .map(UserCreateDtoMapper::maptoUserCreateDto)
+                .map(UserMapper::maptoUserCreateDto)
                 .get();
     }
 
     @Override
     public List<UserDto> findAllUsers() {
-        log.info("The user list was created");
-        return this.storage.findAllUsers().stream()
-                .map(UserCreateDtoMapper::maptoUserCreateDto)
+        return storage.findAllUsers().stream()
+                .map(UserMapper::maptoUserCreateDto)
                 .toList();
     }
 
@@ -70,8 +69,8 @@ public class UserDbServiceImpl implements UserService{
     }
 
     @Override
-    public UserDto addFriend(long userId, long newFriendId) {
-        return null;
+    public void addFriend(long userId, long friendId) {
+        storage.addFriend(userId, friendId);
     }
 
     @Override

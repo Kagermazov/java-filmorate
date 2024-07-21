@@ -4,11 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dto.film.FilmRowDto;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmRating;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
-import ru.yandex.practicum.filmorate.storage.mappers.film.FilmsRowMapper;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,10 +19,11 @@ import static java.util.stream.Collectors.groupingBy;
 
 @Slf4j
 @Repository("filmDbStorage")
-public class FilmDbStorage extends BaseRepository<FilmsRowMapper.FilmRowDto> implements FilmStorage {
+public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmStorage {
     private static final String ADD_FILM_QUERY =
             "INSERT INTO films (film_name, rating, description, release_date, duration) VALUES (?, ?, ?, ?, ?);";
     private static final String ADD_TO_FILMS_GENRE_QUERY = "INSERT INTO films_genre (film_id, genre_id) VALUES (?, ?);";
+    private static final String AAD_LIKE_QUERY = "INSERT INTO films_users (film_id, user_id) VALUES (?, ?)";
     private static final String UPDATE_FILM_QUERY = "UPDATE films " +
             "SET film_name = ?, " +
             "rating = ?, " +
@@ -31,13 +32,27 @@ public class FilmDbStorage extends BaseRepository<FilmsRowMapper.FilmRowDto> imp
             "duration = ? " +
             "WHERE id = ?";
     private static final String GET_ALL_FILMS_QUERY = "SELECT films.*, " +
-            "films_genre.genre_id as genre_id, " +
+            "mpa.mpa_name, " +
+            "genre.id as genre_id, " +
+            "genre_name, " +
             "fu.user_id " +
             "FROM films " +
             "LEFT JOIN films_genre ON films.id=films_genre.film_id " +
-            "left JOIN films_users fu ON films.id =fu.film_id ;";
+            "LEFT JOIN mpa ON films.rating = mpa.id " +
+            "LEFT JOIN genre ON films_genre.genre_id=genre.id " +
+            "LEFT JOIN films_users fu ON films.id =fu.film_id";
+    private static final String GET_FILM_BY_ID_QUERY = "SELECT films.*, " +
+            "mpa.mpa_name, " +
+            "genre.id as genre_id, " +
+            "genre_name, " +
+            "fu.user_id " +
+            "FROM films " +
+            "LEFT JOIN films_genre ON films.id=films_genre.film_id " +
+            "LEFT JOIN mpa on films.rating = mpa.id " +
+            "LEFT JOIN films_users fu ON films.id =fu.film_id " +
+            "WHERE films.id = ?;";
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<FilmsRowMapper.FilmRowDto> mapper) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<FilmRowDto> mapper) {
         super(jdbc, mapper);
     }
 
@@ -75,50 +90,70 @@ public class FilmDbStorage extends BaseRepository<FilmsRowMapper.FilmRowDto> imp
     }
 
     @Override
-    public List<Film> getAllFilms() {
-        List<FilmsRowMapper.FilmRowDto> films = jdbc.query(GET_ALL_FILMS_QUERY, mapper);
+    public Optional<Film> getFilmById(Long id) {
+        Optional<FilmRowDto> dtoFromBase = findOne(GET_FILM_BY_ID_QUERY, mapper);
 
-        Map<Long, List<FilmsRowMapper.FilmRowDto>> filmIdToFilmRowDto = films.stream()
-                .collect(groupingBy(FilmsRowMapper.FilmRowDto::getId));
+        if (dtoFromBase.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Film newFilm = new Film();
+        FilmRowDto dto = dtoFromBase.get();
+
+        newFilm.setId(dto.getId());
+        newFilm.setName(dto.getName());
+        newFilm.setDescription(dto.getDescription());
+        newFilm.setDescription(dto.getDescription());
+        newFilm.setReleaseDate(dto.getReleaseDate().toLocalDate());
+        newFilm.setDuration(dto.getDuration());
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Film> getAllFilms() {
+        List<FilmRowDto> films = findMany(GET_ALL_FILMS_QUERY, mapper);
+        Map<Long, List<FilmRowDto>> filmIdToFilmRowDto = films.stream()
+                .collect(groupingBy(FilmRowDto::getId));
 
         return filmIdToFilmRowDto.values().stream()
                 .map(this::combineRows)
                 .toList();
     }
 
-    private Film combineRows(List<FilmsRowMapper.FilmRowDto> dtos) {
+    private Film combineRows(List<FilmRowDto> dtos) {
         Film filmToReturn = new Film();
-        FilmsRowMapper.FilmRowDto firstDto = dtos.getFirst();
+        FilmRowDto firstDto = dtos.getFirst();
 
         filmToReturn.setId(firstDto.getId());
         filmToReturn.setName(firstDto.getName());
 
-        FilmRating mpa = new FilmRating();
+        Mpa filmMpa = new Mpa();
 
-        mpa.setId(firstDto.getMpaId());
+        filmMpa.setId(firstDto.getMpa().getId());
+        filmMpa.setName(firstDto.getMpa().getName());
 
-        filmToReturn.setMpa(mpa);
+        filmToReturn.setMpa(filmMpa);
         filmToReturn.setDescription(firstDto.getDescription());
         filmToReturn.setDuration(firstDto.getDuration());
         filmToReturn.setReleaseDate(firstDto.getReleaseDate().toLocalDate());
 
         filmToReturn.setGenres(
                 dtos.stream()
-                        .map(FilmsRowMapper.FilmRowDto::getGenreId)
+                        .map(FilmRowDto::getGenre)
                         .distinct()
                         .sorted()
-                        .map(id -> {
-                            Genre filmGenre = new Genre();
-                            filmGenre.setId(id);
-                            return filmGenre;
-                        })
+//                        .map(id -> {
+//                            Genre filmGenre = new Genre();
+//                            filmGenre.setId(id);
+//                            return filmGenre;
+//                        })
                         .toList()
         );
 
         filmToReturn.setUsersLikes(
                 new LinkedHashSet<>(
                         dtos.stream()
-                                .map(FilmsRowMapper.FilmRowDto::getUserId)
+                                .map(FilmRowDto::getUserId)
                                 .distinct()
                                 .sorted()
                                 .toList()
@@ -126,5 +161,9 @@ public class FilmDbStorage extends BaseRepository<FilmsRowMapper.FilmRowDto> imp
         );
 
         return filmToReturn;
+    }
+
+    public void addLike(Long filmId, Long user_id) {
+        insert(AAD_LIKE_QUERY, filmId, user_id);
     }
 }

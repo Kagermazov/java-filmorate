@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Set;
 
-public class UserCreateDtoMapper {
+public class UserMapper {
 
-    private UserCreateDtoMapper() {
+    private UserMapper() {
     }
 
     public static UserDto maptoUserCreateDto(User specificUser) {
@@ -20,7 +20,7 @@ public class UserCreateDtoMapper {
         dto.setName(specificUser.getName());
         dto.setBirthday(specificUser.getBirthday());
 
-        if (friends !=null) {
+        if (friends != null) {
             dto.setFriends(friends);
         }
         return dto;

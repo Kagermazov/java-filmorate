@@ -6,14 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmRating;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,12 +20,11 @@ import java.util.Optional;
 @Slf4j
 @Service("filmDbServiceImpl")
 public class FilmDbServiceImpl implements FilmService {
-    private final FilmStorage filmStorage;
+    private final FilmStorage storage;
 
     @Autowired
-    public FilmDbServiceImpl(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                             @Qualifier("userDbStorage") UserStorage userStorage) {
-        this.filmStorage = filmStorage;
+    public FilmDbServiceImpl(@Qualifier("filmDbStorage") FilmStorage storage) {
+        this.storage = storage;
     }
 
     @Override
@@ -34,7 +32,7 @@ public class FilmDbServiceImpl implements FilmService {
 
         validateMPA(newFilm.getMpa());
         validateGenres(newFilm.getGenres());
-        newFilm.setId(this.filmStorage.addFilm(newFilm));
+        newFilm.setId(this.storage.addFilm(newFilm));
         return FilmMapper.mapToFilmDto(newFilm);
     }
 
@@ -50,12 +48,12 @@ public class FilmDbServiceImpl implements FilmService {
                 });
     }
 
-//    todo replace with sql query
+    //    todo replace with sql query
     private static boolean isGenrePresent(Long idOfGenre) {
         return idOfGenre > 6;
     }
 
-    private void validateMPA(FilmRating mpa) {
+    private void validateMPA(Mpa mpa) {
         try {
             Long mpaId = mpa.getId();
 
@@ -67,7 +65,7 @@ public class FilmDbServiceImpl implements FilmService {
         }
     }
 
-//    todo replace with sql query
+    //    todo replace with sql query
     private static boolean isMpaPresent(Long mpaId) {
         return mpaId > 5;
     }
@@ -76,13 +74,13 @@ public class FilmDbServiceImpl implements FilmService {
     public FilmDto updateFilm(@NonNull Film updatedFilm) {
         validateMPA(updatedFilm.getMpa());
         validateGenres(updatedFilm.getGenres());
-        this.filmStorage.updateFilm(updatedFilm);
+        this.storage.updateFilm(updatedFilm);
 
         Long updatedFilmId = updatedFilm.getId();
 
         log.info("The film with an id {} was updated", updatedFilmId);
 
-        return this.filmStorage.getAllFilms().stream()
+        return this.storage.getAllFilms().stream()
                 .filter(film -> film.getId().equals(updatedFilmId))
                 .findFirst()
                 .map(FilmMapper::mapToFilmDto)
@@ -93,29 +91,14 @@ public class FilmDbServiceImpl implements FilmService {
     public List<FilmDto> getAllFilms() {
         log.info("The film list was created");
 
-        return this.filmStorage.getAllFilms().stream()
+        return this.storage.getAllFilms().stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
     }
 
     @Override
-    public FilmDto addLike(long userId, long filmId) {
-//        Film expectedFilm = getOrThrow(filmId);
-//
-//        checkIfUserExist(userId);
-//
-//        if (expectedFilm.getUsersLikes() == null) {
-//            expectedFilm.setUsersLikes(new HashSet<>());
-//        }
-//
-//        if (expectedFilm.getUsersLikes().contains(userId)) {
-//            throw new ValidationException(HttpStatus.BAD_REQUEST,
-//                    "The film with an id " + filmId + " has a like from the user with an id " + userId);
-//        }
-//
-//        expectedFilm.getUsersLikes().add(userId);
-//        this.filmStorage.updateFilm(expectedFilm);
-//        return expectedFilm;
+    public FilmDto addLike(Long filmId, Long userId) {
+        this.storage.addLike(filmId, userId);
         return null;
     }
 

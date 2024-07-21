@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dto;
+package ru.yandex.practicum.filmorate.dto.film;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.service.film.ReleaseDateConstraint;
 
 import java.time.LocalDate;
@@ -24,7 +26,7 @@ public class FilmDto {
     private String name;
 
     @Nullable
-    private MpaForFilmDto mpa;
+    private MpaDto mpa;
 
     @Size(max = 200, message = "A description length is more than 200 symbols")
     @NotBlank(message = "A film description in mandatory")

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.mapper.MpaDtoMapper;
+import ru.yandex.practicum.filmorate.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
 import java.util.List;
@@ -27,14 +27,14 @@ public class MpaService {
             throw new ValidationException(HttpStatus.NOT_FOUND, "There's no rating with an id " + id);
         }
 
-        return MpaDtoMapper.mapToMpaDto(this.storage.findMpaName(id)
+        return MpaMapper.mapToMpaDto(this.storage.findMpaName(id)
                 .orElseThrow(() -> new InternalServerException(HttpStatus.INTERNAL_SERVER_ERROR, "Null is returned")));
     }
 
     public List<MpaDto> findAllMpa() {
         return this.storage.findAllMpa()
                 .stream()
-                .map(MpaDtoMapper::mapToMpaDto)
+                .map(MpaMapper::mapToMpaDto)
                 .toList();
     }
 }

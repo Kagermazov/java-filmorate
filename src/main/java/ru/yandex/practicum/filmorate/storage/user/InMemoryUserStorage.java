@@ -41,6 +41,16 @@ public class InMemoryUserStorage implements UserStorage {
         return this.users.values().stream().toList();
     }
 
+    @Override
+    public User addFriend(Long userId, Long friendId) {
+        return null;
+    }
+
+    @Override
+    public User getAllFriends(Long userId) {
+        return null;
+    }
+
     public @Nullable User getUserById(long userId) {
         return this.users.get(userId);
     }

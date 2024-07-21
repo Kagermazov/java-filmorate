@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -62,9 +63,9 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmDto addLike(long userId, long filmId) {
+    public FilmDto addLike(Long userId, Long filmId) {
         Film expectedFilm = this.filmStorage.getAllFilms().stream()
-                .filter(film -> film.getId() == filmId)
+                .filter(film -> Objects.equals(film.getId(), filmId))
                 .findAny()
                 .orElse(null);
 

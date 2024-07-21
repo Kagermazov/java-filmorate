@@ -24,7 +24,7 @@ public class Film {
     private String name;
 
     @Nullable
-    private FilmRating mpa;
+    private Mpa mpa;
 
     @Size(max = 200, message = "A description length is more than 200 symbols")
     @NotBlank(message = "A film description in mandatory")

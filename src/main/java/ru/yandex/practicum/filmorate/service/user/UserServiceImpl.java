@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.mapper.UserCreateDtoMapper;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
         Long newUserId = newUser.getId();
 
         log.info("The user with id {} was created", newUserId);
-        return UserCreateDtoMapper.maptoUserCreateDto(getUserById(newUserId));
+        return UserMapper.maptoUserCreateDto(getUserById(newUserId));
     }
 
     private User getUserById(Long newUserId) {
@@ -59,14 +59,14 @@ public class UserServiceImpl implements UserService {
         Long updatedUserId = updatedUser.getId();
 
         log.trace("The user with id {} was updated", updatedUserId);
-        return UserCreateDtoMapper.maptoUserCreateDto(getUserById(updatedUserId));
+        return UserMapper.maptoUserCreateDto(getUserById(updatedUserId));
     }
 
     @Override
     public List<UserDto> findAllUsers() {
         log.info("The user list was created");
         return this.storage.findAllUsers().stream()
-                .map(UserCreateDtoMapper::maptoUserCreateDto)
+                .map(UserMapper::maptoUserCreateDto)
                 .toList();
     }
 
@@ -81,12 +81,12 @@ public class UserServiceImpl implements UserService {
         log.info("All users list was created");
         return userFriends.stream()
                 .map(this::getUserById)
-                .map(UserCreateDtoMapper::maptoUserCreateDto)
+                .map(UserMapper::maptoUserCreateDto)
                 .toList();
     }
 
     @Override
-    public @Nullable UserDto addFriend(long userId, long newFriendId) {
+    public @Nullable void addFriend(long userId, long newFriendId) {
         User firstUser = getUserById(userId);
         User newFriend = getUserById(newFriendId);
 
@@ -100,10 +100,7 @@ public class UserServiceImpl implements UserService {
             this.storage.updateUser(firstUser);
             this.storage.updateUser(newFriend);
             log.info("The user with id {} was added to the user with id {} friends", newFriendId, userId);
-            return UserCreateDtoMapper.maptoUserCreateDto(getUserById(userId));
         }
-
-        return null;
     }
 
     @Override
@@ -119,7 +116,7 @@ public class UserServiceImpl implements UserService {
             log.info("The list of common fiends user with id {} and user with id {} was created", userId, userIdToCompare);
             return intersection.stream()
                     .map(this::getUserById)
-                    .map(UserCreateDtoMapper::maptoUserCreateDto)
+                    .map(UserMapper::maptoUserCreateDto)
                     .toList();
         }
 
@@ -142,11 +139,11 @@ public class UserServiceImpl implements UserService {
             userToReturnFriends.remove(userToUnfriendId);
             userToUnfriendFriends.remove(userId);
             log.info("The user with id {} was unfriend from user with id {}", userToUnfriendId, userId);
-            return UserCreateDtoMapper.maptoUserCreateDto(userToReturn);
+            return UserMapper.maptoUserCreateDto(userToReturn);
         }
 
         log.info("The user with id {} isn't user with id {} friend", userToUnfriendId, userId);
-        return UserCreateDtoMapper.maptoUserCreateDto(userToReturn);
+        return UserMapper.maptoUserCreateDto(userToReturn);
     }
 
     private void validate(@NonNull User userToCheck) {
