@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class UserRowMapper implements RowMapper<UserRowDto> {
+public class UserDtoRowMapper implements RowMapper<UserRowDto> {
 
     @Override
     public UserRowDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {

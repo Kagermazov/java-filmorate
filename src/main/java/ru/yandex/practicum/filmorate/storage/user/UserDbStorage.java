@@ -78,7 +78,7 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
 
     @Override
     public List<User> findAllUsers() {
-        List<UserRowDto> users = findMany(GET_ALL_USER_QUERY, mapper);
+        List<UserRowDto> users = findMany(GET_ALL_USER_QUERY);
         Map<Long, List<UserRowDto>> userIdToUser = users.stream().collect(groupingBy(UserRowDto::getId));
 
         return userIdToUser.values().stream()
