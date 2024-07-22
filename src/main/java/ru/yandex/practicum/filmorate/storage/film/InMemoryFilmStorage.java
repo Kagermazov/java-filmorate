@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Component("inMemoryFilmStorage")
 @RequiredArgsConstructor
@@ -21,7 +20,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public long addFilm(@NonNull Film newFilm) {
         newFilm.setId(getNextId());
-        this.films.put(newFilm.getId(), newFilm);
+        films.put(newFilm.getId(), newFilm);
         return newFilm.getId();
     }
 
@@ -29,21 +28,22 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void updateFilm(Film updatedFilm) {
         Long updatedFilmId = updatedFilm.getId();
 
-        if (!this.films.containsKey(updatedFilmId)) {
+        if (!films.containsKey(updatedFilmId)) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "There's no film with id " + updatedFilmId);
         }
 
-        this.films.replace(updatedFilmId, updatedFilm);
+        films.replace(updatedFilmId, updatedFilm);
     }
 
     public void deleteFilms() {
-        this.films.clear();
+        films.clear();
     }
 
     @Override
     public List<Film> getAllFilms() {
-        return this.films.values().stream().toList();
+        return films.values().stream().toList();
     }
+    
 
     @Override
     public void addLike(Long filmId, Long userId) {
@@ -51,11 +51,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> getFilmById(Long filmId) {
-        return Optional.ofNullable(this.films.get(filmId));
+    public Film getFilmById(Long filmId) {
+        return films.get(filmId);
     }
 
     private long getNextId() {
-        return ++this.counter;
+        return ++counter;
     }
 }

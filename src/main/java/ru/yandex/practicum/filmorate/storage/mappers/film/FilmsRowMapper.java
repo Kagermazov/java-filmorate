@@ -25,8 +25,14 @@ public class FilmsRowMapper implements RowMapper<FilmRowDto>, Serializable {
         filmMpa.setId(resultSet.getLong("rating"));
         filmMpa.setName(resultSet.getString("mpa_name"));
 
-        filmGenre.setId(resultSet.getLong("genre_id"));
-        filmGenre.setName(resultSet.getString("genre_name"));
+        long genreId = resultSet.getLong("genre_id");
+        String genreName = resultSet.getString("genre_name");
+
+        if (genreId != 0 && genreName != null) {
+            filmGenre.setId(genreId);
+            filmGenre.setName(genreName);
+            filmRowDto.setGenre(filmGenre);
+        }
 
         filmRowDto.setId(resultSet.getLong("id"));
         filmRowDto.setName(resultSet.getString("film_name"));
@@ -34,7 +40,6 @@ public class FilmsRowMapper implements RowMapper<FilmRowDto>, Serializable {
         filmRowDto.setDescription(resultSet.getString("description"));
         filmRowDto.setReleaseDate(resultSet.getDate("release_date"));
         filmRowDto.setDuration(resultSet.getInt("duration"));
-        filmRowDto.setGenre(filmGenre);
         filmRowDto.setUserId(resultSet.getLong("user_id"));
 
         log.info("a filmRowDto is created");

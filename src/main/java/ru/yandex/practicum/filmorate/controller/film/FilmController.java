@@ -48,15 +48,21 @@ public class FilmController {
         return service.getAllFilms();
     }
 
+    @GetMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.OK)
+    public FilmDto getFilmWithGenre(@PathVariable Long filmId) {
+        return service.getFilmById(filmId);
+    }
+
     @PutMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public FilmDto addLike(@PathVariable long filmId, @PathVariable long userId) {
+    public FilmDto addLike(@PathVariable Long filmId, @PathVariable Long userId) {
         return service.addLike(userId, filmId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public FilmDto removeLike(@PathVariable long id, @PathVariable long userId) {
+    public FilmDto removeLike(@PathVariable Long id, @PathVariable Long userId) {
         return service.removeLike(id, userId);
     }
 
