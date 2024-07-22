@@ -107,15 +107,8 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
     @Override
-    public void removeLike(long filmId, long userId) {
-//        Film expectedFilm = getOrThrow(filmId);
-//
-//        checkIfUserExist(userId);
-//        Optional.ofNullable(expectedFilm.getUsersLikes())
-//                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-//                        "The film with id " + filmId + " doesn't have likes"))
-//                .remove(userId);
-//        return expectedFilm;
+    public void removeLike(Long filmId, Long userId) {
+        storage.removeLike(filmId, userId);
     }
 
 //    private void checkIfUserExist(long userId) {
