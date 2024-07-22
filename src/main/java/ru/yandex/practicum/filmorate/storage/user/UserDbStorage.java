@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.groupingBy;
 public class UserDbStorage extends BaseRepository<UserRowDto> implements UserStorage {
     private static final String ADD_USER_QUERY =
             "INSERT INTO users (email, user_name, login, birthday) VALUES (?, ?, ?, ?)";
+    private static final String ADD_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?);";
     private static final String UPDATE_USER_QUERY = "UPDATE users " +
             "SET login = ?, " +
             "user_name = ?, " +
@@ -35,7 +36,6 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
             "FROM users u " +
             "LEFT JOIN friends f ON u.id = f.user_id " +
             "WHERE u.id = ?;";
-    private static final String ADD_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?);";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<UserRowDto> mapper) {
         super(jdbc, mapper);
@@ -104,9 +104,9 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
         return userToReturn;
     }
 
-    public User addFriend(Long userId, Long friendId) {
+    @Override
+    public void addFriend(Long userId, Long friendId) {
         insert(ADD_FRIEND_QUERY, userId, friendId);
-        return null;
     }
 
     @Override

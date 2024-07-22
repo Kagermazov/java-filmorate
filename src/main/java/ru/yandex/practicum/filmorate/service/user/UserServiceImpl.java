@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findAllUserFriends(long userId) {
+    public List<UserDto> findAllUserFriends(Long userId) {
         Set<Long> userFriends = getUserById(userId).getFriends();
 
         if (userFriends == null) {
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public @Nullable void addFriend(long userId, long newFriendId) {
+    public @Nullable void addFriend(Long userId, Long newFriendId) {
         User firstUser = getUserById(userId);
         User newFriend = getUserById(newFriendId);
 
@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> showCommonFriends(long userId, long userIdToCompare) {
+    public List<UserDto> showCommonFriends(Long userId, Long userIdToCompare) {
         Set<Long> intersection = Optional.ofNullable(getUserById(userId).getFriends())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userId + " doesn't have friends"));
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto unfriend(long userId, long userToUnfriendId) {
+    public UserDto unfriend(Long userId, Long userToUnfriendId) {
         User userToReturn = getUserById(userId);
         User userToUnfriend = getUserById(userToUnfriendId);
         Set<Long> userToReturnFriends = userToReturn.getFriends();

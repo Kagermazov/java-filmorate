@@ -64,22 +64,22 @@ public class UserDbServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findAllUserFriends(long userId) {
+    public List<UserDto> findAllUserFriends(Long userId) {
         return List.of();
     }
 
     @Override
-    public void addFriend(long userId, long friendId) {
+    public void addFriend(Long userId, Long friendId) {
         storage.addFriend(userId, friendId);
     }
 
     @Override
-    public List<UserDto> showCommonFriends(long userId, long userIdToCompare) {
+    public List<UserDto> showCommonFriends(Long userId, Long userIdToCompare) {
         return List.of();
     }
 
     @Override
-    public UserDto unfriend(long userId, long userToUnfriendId) {
+    public UserDto unfriend(Long userId, Long userToUnfriendId) {
         return null;
     }
 

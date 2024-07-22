@@ -102,13 +102,12 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmDto addLike(Long filmId, Long userId) {
+    public void addLike(Long filmId, Long userId) {
         storage.addLike(filmId, userId);
-        return null;
     }
 
     @Override
-    public FilmDto removeLike(long filmId, long userId) {
+    public void removeLike(long filmId, long userId) {
 //        Film expectedFilm = getOrThrow(filmId);
 //
 //        checkIfUserExist(userId);
@@ -117,7 +116,6 @@ public class FilmDbServiceImpl implements FilmService {
 //                        "The film with id " + filmId + " doesn't have likes"))
 //                .remove(userId);
 //        return expectedFilm;
-        return null;
     }
 
 //    private void checkIfUserExist(long userId) {
