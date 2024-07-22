@@ -140,13 +140,6 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         filmToReturn.setGenres(
                 dtos.stream()
                         .map(FilmRowDto::getGenre)
-                        .distinct()
-                        .sorted()
-//                        .map(id -> {
-//                            Genre filmGenre = new Genre();
-//                            filmGenre.setId(id);
-//                            return filmGenre;
-//                        })
                         .toList()
         );
 
@@ -163,7 +156,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         return filmToReturn;
     }
 
-    public void addLike(Long filmId, Long user_id) {
-        insert(AAD_LIKE_QUERY, filmId, user_id);
+    public void addLike(Long filmId, Long userId) {
+        insert(AAD_LIKE_QUERY, filmId, userId);
     }
 }
