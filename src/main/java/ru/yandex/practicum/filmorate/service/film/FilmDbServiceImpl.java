@@ -23,8 +23,8 @@ public class FilmDbServiceImpl implements FilmService {
     private final FilmStorage storage;
 
     @Autowired
-    public FilmDbServiceImpl(@Qualifier("filmDbStorage") FilmStorage storage) {
-        this.storage = storage;
+    public FilmDbServiceImpl(@Qualifier("filmDbStorage") FilmStorage storageForFilms) {
+        storage = storageForFilms;
     }
 
     @Override
@@ -32,8 +32,8 @@ public class FilmDbServiceImpl implements FilmService {
 
         validateMPA(newFilm.getMpa());
         validateGenres(newFilm.getGenres());
-        newFilm.setId(this.storage.addFilm(newFilm));
-        return FilmMapper.mapToFilmDto(newFilm);
+        Long filmId = storage.addFilm(newFilm);
+        return FilmMapper.mapToFilmDto(storage.getFilmById(filmId));
     }
 
     private void validateGenres(List<Genre> genres) {
@@ -74,13 +74,13 @@ public class FilmDbServiceImpl implements FilmService {
     public FilmDto updateFilm(@NonNull Film updatedFilm) {
         validateMPA(updatedFilm.getMpa());
         validateGenres(updatedFilm.getGenres());
-        this.storage.updateFilm(updatedFilm);
+        storage.updateFilm(updatedFilm);
 
         Long updatedFilmId = updatedFilm.getId();
 
         log.info("The film with an id {} was updated", updatedFilmId);
 
-        return this.storage.getAllFilms().stream()
+        return storage.getAllFilms().stream()
                 .filter(film -> film.getId().equals(updatedFilmId))
                 .findFirst()
                 .map(FilmMapper::mapToFilmDto)
@@ -91,14 +91,19 @@ public class FilmDbServiceImpl implements FilmService {
     public List<FilmDto> getAllFilms() {
         log.info("The film list was created");
 
-        return this.storage.getAllFilms().stream()
+        return storage.getAllFilms().stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
     }
 
     @Override
+    public FilmDto getFilmById(Long id) {
+        return FilmMapper.mapToFilmDto(storage.getFilmById(id));
+    }
+
+    @Override
     public FilmDto addLike(Long filmId, Long userId) {
-        this.storage.addLike(filmId, userId);
+        storage.addLike(filmId, userId);
         return null;
     }
 
@@ -116,14 +121,14 @@ public class FilmDbServiceImpl implements FilmService {
     }
 
 //    private void checkIfUserExist(long userId) {
-//        if (this.userStorage.getUserById(userId) == null) {
+//        if (userStorage.getUserById(userId) == null) {
 //            throw new ValidationException(HttpStatus.NOT_FOUND,
 //                    "The user with id " + userId + " doesn't exist");
 //        }
 //    }
 
 //    private Film getOrThrow(long filmId) {
-//        return Optional.ofNullable(this.filmStorage.getFilmById(filmId))
+//        return Optional.ofNullable(filmStorage.getFilmById(filmId))
 //                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
 //                        "The film with id " + filmId + " doesn't exist"));
 //    }
@@ -131,7 +136,7 @@ public class FilmDbServiceImpl implements FilmService {
     @Override
     public List<FilmDto> findPopularFilms(Integer count) {
 //        log.info("Popular films list is created with limit of {}", count);
-//        return this.filmStorage.findAllFilms().stream()
+//        return filmStorage.findAllFilms().stream()
 //                .filter(film -> film.getUsersLikes() != null)
 //                .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
 //                .limit(count)

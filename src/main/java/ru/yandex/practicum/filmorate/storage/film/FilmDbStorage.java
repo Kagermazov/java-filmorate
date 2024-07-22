@@ -10,10 +10,12 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -47,9 +49,10 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
             "genre_name, " +
             "fu.user_id " +
             "FROM films " +
-            "LEFT JOIN films_genre ON films.id=films_genre.film_id " +
+            "LEFT JOIN films_genre ON films.id = films_genre.film_id " +
             "LEFT JOIN mpa on films.rating = mpa.id " +
-            "LEFT JOIN films_users fu ON films.id =fu.film_id " +
+            "LEFT JOIN genre ON films_genre.genre_id = genre.id " +
+            "LEFT JOIN films_users fu ON films.id = fu.film_id " +
             "WHERE films.id = ?;";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<FilmRowDto> mapper) {
@@ -70,8 +73,14 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
 
         Optional.ofNullable(newFilm.getGenres())
                 .ifPresent(genres -> {
+                    Set<Long> genreIds = new HashSet<>();
+
                     for (Genre filmGenre : genres) {
-                        insert(ADD_TO_FILMS_GENRE_QUERY, id, filmGenre.getId());
+                        genreIds.add(filmGenre.getId());
+                    }
+
+                    for (Long genreId : genreIds) {
+                        insert(ADD_TO_FILMS_GENRE_QUERY, id, genreId);
                     }
                 });
 
@@ -90,23 +99,32 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     }
 
     @Override
-    public Optional<Film> getFilmById(Long id) {
-        Optional<FilmRowDto> dtoFromBase = findOne(GET_FILM_BY_ID_QUERY);
+    public Film getFilmById(Long id) {
+        List<FilmRowDto> dtos = findMany(GET_FILM_BY_ID_QUERY, id);
 
-        if (dtoFromBase.isEmpty()) {
-            return Optional.empty();
+        if (dtos.isEmpty()) {
+            return null;
         }
 
-        Film newFilm = new Film();
-        FilmRowDto dto = dtoFromBase.get();
+        Film expectedFilm = new Film();
+        FilmRowDto firstDto = dtos.getFirst();
 
-        newFilm.setId(dto.getId());
-        newFilm.setName(dto.getName());
-        newFilm.setDescription(dto.getDescription());
-        newFilm.setDescription(dto.getDescription());
-        newFilm.setReleaseDate(dto.getReleaseDate().toLocalDate());
-        newFilm.setDuration(dto.getDuration());
-        return Optional.empty();
+        expectedFilm.setId(firstDto.getId());
+        expectedFilm.setName(firstDto.getName());
+        expectedFilm.setMpa(firstDto.getMpa());
+        expectedFilm.setDescription(firstDto.getDescription());
+        expectedFilm.setReleaseDate(firstDto.getReleaseDate().toLocalDate());
+        expectedFilm.setDuration(firstDto.getDuration());
+
+        List<Genre> genres = dtos.stream()
+                .map(FilmRowDto::getGenre)
+                .toList();
+
+        if (!genres.contains(null)) {
+            expectedFilm.setGenres(genres);
+        }
+
+        return expectedFilm;
     }
 
     @Override

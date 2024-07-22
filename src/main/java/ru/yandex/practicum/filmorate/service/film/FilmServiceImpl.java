@@ -27,15 +27,15 @@ public class FilmServiceImpl implements FilmService {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmServiceImpl(@Qualifier("inMemoryFilmStorage") FilmStorage filmStorage,
-                           @Qualifier("inMemoryUserStorage") UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+    public FilmServiceImpl(@Qualifier("inMemoryFilmStorage") FilmStorage storageForFilms,
+                           @Qualifier("inMemoryUserStorage") UserStorage storageForUsers) {
+        filmStorage = storageForFilms;
+        userStorage = storageForUsers;
     }
 
     @Override
     public FilmDto addFilm(@NonNull Film newFilm) {
-        this.filmStorage.addFilm(newFilm);
+        filmStorage.addFilm(newFilm);
 
         Long newFilmId = newFilm.getId();
 
@@ -46,7 +46,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public FilmDto updateFilm(@NonNull Film updatedFilm) {
-        this.filmStorage.updateFilm(updatedFilm);
+        filmStorage.updateFilm(updatedFilm);
 
         Long updatedFilmId = updatedFilm.getId();
 
@@ -57,14 +57,19 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<FilmDto> getAllFilms() {
         log.info("The film list was created");
-        return this.filmStorage.getAllFilms().stream()
+        return filmStorage.getAllFilms().stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
     }
 
     @Override
+    public FilmDto getFilmById(Long id) {
+        return FilmMapper.mapToFilmDto(filmStorage.getFilmById(id));
+    }
+
+    @Override
     public FilmDto addLike(Long userId, Long filmId) {
-        Film expectedFilm = this.filmStorage.getAllFilms().stream()
+        Film expectedFilm = filmStorage.getAllFilms().stream()
                 .filter(film -> Objects.equals(film.getId(), filmId))
                 .findAny()
                 .orElse(null);
@@ -81,13 +86,13 @@ public class FilmServiceImpl implements FilmService {
         }
 
         expectedFilm.getUsersLikes().add(userId);
-        this.filmStorage.updateFilm(expectedFilm);
+        filmStorage.updateFilm(expectedFilm);
         return FilmMapper.mapToFilmDto(expectedFilm);
     }
 
     @Override
     public FilmDto removeLike(long filmId, long userId) {
-        Film expectedFilm = this.filmStorage.getAllFilms().stream()
+        Film expectedFilm = filmStorage.getAllFilms().stream()
                 .filter(film -> film.getId() == filmId)
                 .findAny()
                 .orElse(null);
@@ -101,7 +106,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     private void checkIfUserExist(long userId) {
-        User userToCHeck = this.userStorage.findAllUsers().stream()
+        User userToCHeck = userStorage.findAllUsers().stream()
                 .filter(user -> user.getId() == userId)
                 .findFirst()
                 .get();
@@ -115,7 +120,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<FilmDto> findPopularFilms(Integer count) {
         log.info("Popular films list is created with limit of {}", count);
-        return this.filmStorage.getAllFilms().stream()
+        return filmStorage.getAllFilms().stream()
                 .filter(film -> film.getUsersLikes() != null)
                 .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
                 .limit(count)
