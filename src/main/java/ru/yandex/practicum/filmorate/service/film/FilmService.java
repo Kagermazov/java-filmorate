@@ -14,9 +14,9 @@ public interface FilmService {
 
     FilmDto getFilmById(Long id);
 
-    FilmDto addLike(Long userId, Long filmId);
+    void addLike(Long filmId, Long userId);
 
-    FilmDto removeLike(long filmId, long userId);
+    void removeLike(long filmId, long userId);
 
     List<FilmDto> findPopularFilms(Integer count);
 }

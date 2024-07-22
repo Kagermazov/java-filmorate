@@ -67,8 +67,7 @@ public class FilmServiceImpl implements FilmService {
         return FilmMapper.mapToFilmDto(filmStorage.getFilmById(id));
     }
 
-    @Override
-    public FilmDto addLike(Long userId, Long filmId) {
+    public void addLike(Long userId, Long filmId) {
         Film expectedFilm = filmStorage.getAllFilms().stream()
                 .filter(film -> Objects.equals(film.getId(), filmId))
                 .findAny()
@@ -87,11 +86,10 @@ public class FilmServiceImpl implements FilmService {
 
         expectedFilm.getUsersLikes().add(userId);
         filmStorage.updateFilm(expectedFilm);
-        return FilmMapper.mapToFilmDto(expectedFilm);
     }
 
     @Override
-    public FilmDto removeLike(long filmId, long userId) {
+    public void removeLike(long filmId, long userId) {
         Film expectedFilm = filmStorage.getAllFilms().stream()
                 .filter(film -> film.getId() == filmId)
                 .findAny()
@@ -102,7 +100,6 @@ public class FilmServiceImpl implements FilmService {
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "The film with id " + filmId + " doesn't have likes"))
                 .remove(userId);
-        return FilmMapper.mapToFilmDto(expectedFilm);
     }
 
     private void checkIfUserExist(long userId) {

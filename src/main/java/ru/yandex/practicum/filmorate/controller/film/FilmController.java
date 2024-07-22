@@ -56,14 +56,14 @@ public class FilmController {
 
     @PutMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public FilmDto addLike(@PathVariable Long filmId, @PathVariable Long userId) {
-        return service.addLike(userId, filmId);
+    public void addLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        service.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public FilmDto removeLike(@PathVariable Long id, @PathVariable Long userId) {
-        return service.removeLike(id, userId);
+    public void removeLike(@PathVariable Long id, @PathVariable Long userId) {
+        service.removeLike(id, userId);
     }
 
     @GetMapping("/popular")

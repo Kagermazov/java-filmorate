@@ -25,7 +25,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     private static final String ADD_FILM_QUERY =
             "INSERT INTO films (film_name, rating, description, release_date, duration) VALUES (?, ?, ?, ?, ?);";
     private static final String ADD_TO_FILMS_GENRE_QUERY = "INSERT INTO films_genre (film_id, genre_id) VALUES (?, ?);";
-    private static final String AAD_LIKE_QUERY = "INSERT INTO films_users (film_id, user_id) VALUES (?, ?)";
+    private static final String ADD_LIKE_QUERY = "INSERT INTO films_users (film_id, user_id) VALUES (?, ?)";
     private static final String UPDATE_FILM_QUERY = "UPDATE films " +
             "SET film_name = ?, " +
             "rating = ?, " +
@@ -128,6 +128,11 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     }
 
     @Override
+    public void addLike(Long filmId, Long userId) {
+        insert(ADD_LIKE_QUERY, filmId, userId);
+    }
+
+    @Override
     public List<Film> getAllFilms() {
         List<FilmRowDto> films = findMany(GET_ALL_FILMS_QUERY);
         Map<Long, List<FilmRowDto>> filmIdToFilmRowDto = films.stream()
@@ -172,9 +177,5 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         );
 
         return filmToReturn;
-    }
-
-    public void addLike(Long filmId, Long userId) {
-        insert(AAD_LIKE_QUERY, filmId, userId);
     }
 }

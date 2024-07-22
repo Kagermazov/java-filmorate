@@ -12,11 +12,11 @@ public interface UserService {
 
     List<UserDto> findAllUsers();
 
-    List<UserDto> findAllUserFriends(long userId);
+    List<UserDto> findAllUserFriends(Long userId);
 
-    void addFriend(long userId, long newFriendId);
+    void addFriend(Long userId, Long newFriendId);
 
-    List<UserDto> showCommonFriends(long userId, long userIdToCompare);
+    List<UserDto> showCommonFriends(Long userId, Long userIdToCompare);
 
-    UserDto unfriend(long userId, long userToUnfriendId);
+    UserDto unfriend(Long userId, Long userToUnfriendId);
 }
