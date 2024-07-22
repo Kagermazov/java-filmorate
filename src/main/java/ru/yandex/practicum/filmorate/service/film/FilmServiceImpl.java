@@ -89,7 +89,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public void removeLike(long filmId, long userId) {
+    public void removeLike(Long filmId, Long userId) {
         Film expectedFilm = filmStorage.getAllFilms().stream()
                 .filter(film -> film.getId() == filmId)
                 .findAny()

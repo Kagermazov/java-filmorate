@@ -14,4 +14,6 @@ public interface FilmStorage {
     Film getFilmById(Long id);
 
     void addLike(Long filmId, Long userId);
+
+    void removeLike(Long filmId, Long userId);
 }

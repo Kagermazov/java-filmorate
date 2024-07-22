@@ -54,6 +54,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     }
 
+    @Override
+    public void removeLike(Long filmId, Long userId) {
+
+    }
+
     private long getNextId() {
         return ++counter;
     }
