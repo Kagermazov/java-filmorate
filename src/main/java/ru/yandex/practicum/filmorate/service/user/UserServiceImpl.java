@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findAllUserFriends(Long userId) {
+    public List<Long> findAllUserFriends(Long userId) {
         Set<Long> userFriends = getUserById(userId).getFriends();
 
         if (userFriends == null) {
@@ -79,10 +79,7 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("All users list was created");
-        return userFriends.stream()
-                .map(this::getUserById)
-                .map(UserMapper::maptoUserCreateDto)
-                .toList();
+        return List.of();
     }
 
     @Override
@@ -125,7 +122,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto unfriend(Long userId, Long userToUnfriendId) {
+    public void removeFriend(Long userId, Long userToUnfriendId) {
         User userToReturn = getUserById(userId);
         User userToUnfriend = getUserById(userToUnfriendId);
         Set<Long> userToReturnFriends = userToReturn.getFriends();
@@ -139,11 +136,9 @@ public class UserServiceImpl implements UserService {
             userToReturnFriends.remove(userToUnfriendId);
             userToUnfriendFriends.remove(userId);
             log.info("The user with id {} was unfriend from user with id {}", userToUnfriendId, userId);
-            return UserMapper.maptoUserCreateDto(userToReturn);
         }
 
         log.info("The user with id {} isn't user with id {} friend", userToUnfriendId, userId);
-        return UserMapper.maptoUserCreateDto(userToReturn);
     }
 
     private void validate(@NonNull User userToCheck) {

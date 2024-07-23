@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.BaseRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -21,6 +22,7 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
     private static final String ADD_USER_QUERY =
             "INSERT INTO users (email, user_name, login, birthday) VALUES (?, ?, ?, ?)";
     private static final String ADD_FRIEND_QUERY = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?);";
+    private static final String DELETE_FRIEND_QUERY = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
     private static final String UPDATE_USER_QUERY = "UPDATE users " +
             "SET login = ?, " +
             "user_name = ?, " +
@@ -31,7 +33,7 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
             "f.friend_id " +
             "FROM users u " +
             "LEFT JOIN friends f ON u.id = f.user_id;";
-    private static final String GET_USER_BY_ID = "SELECT u.*, " +
+    private static final String GET_USER_BY_ID_QUERY = "SELECT u.*, " +
             "f.friend_id " +
             "FROM users u " +
             "LEFT JOIN friends f ON u.id = f.user_id " +
@@ -110,7 +112,40 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
     }
 
     @Override
-    public User getAllFriends(Long userId) {
-        return null;
+    public void removeFriend(Long userId, Long friendId) {
+        update(DELETE_FRIEND_QUERY, userId, friendId);
+    }
+
+    @Override
+    public List<User> findUserAllFriends(Long userId) {
+        return List.of();
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        List<UserRowDto> dtos = findMany(GET_USER_BY_ID_QUERY, userId);
+
+        if (dtos.isEmpty()) {
+            return null;
+        }
+
+        User expectedUser = new User();
+        UserRowDto firstDto = dtos.getFirst();
+
+        expectedUser.setId(firstDto.getId());
+        expectedUser.setLogin(firstDto.getLogin());
+        expectedUser.setName(firstDto.getName());
+        expectedUser.setEmail(firstDto.getEmail());
+        expectedUser.setBirthday(firstDto.getBirthday());
+
+        Set<Long> friends = dtos.stream()
+                .map(UserRowDto::getFriendId)
+                .collect(Collectors.toSet());
+
+        if (!friends.contains(null)) {
+            expectedUser.setFriends(friends);
+        }
+
+        return expectedUser;
     }
 }

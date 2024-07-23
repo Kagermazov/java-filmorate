@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service("userDbServiceImpl")
@@ -64,7 +65,13 @@ public class UserDbServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findAllUserFriends(Long userId) {
+    public List<Long> findAllUserFriends(Long userId) {
+        Set<Long> friendIds = storage.getUserById(userId).getFriends();
+
+        if (friendIds != null) {
+            return friendIds.stream().toList();
+        }
+
         return List.of();
     }
 
@@ -79,8 +86,8 @@ public class UserDbServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto unfriend(Long userId, Long userToUnfriendId) {
-        return null;
+    public void removeFriend(Long userId, Long userToUnfriendId) {
+        storage.removeFriend(userId, userToUnfriendId);
     }
 
     private void validate(@NonNull User userToCheck) {

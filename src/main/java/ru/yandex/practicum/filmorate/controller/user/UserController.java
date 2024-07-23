@@ -55,7 +55,7 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> findAllUserFriends(@PathVariable Long id) {
+    public List<Long> findAllUserFriends(@PathVariable Long id) {
         return service.findAllUserFriends(id);
     }
 
@@ -67,8 +67,8 @@ public class UserController {
 
     @DeleteMapping("{id}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto unfriend(@PathVariable long id, @PathVariable Long friendId) {
-        return service.unfriend(id, friendId);
+    public void removeFriend(@PathVariable long id, @PathVariable Long friendId) {
+        service.removeFriend(id, friendId);
     }
 
 }
