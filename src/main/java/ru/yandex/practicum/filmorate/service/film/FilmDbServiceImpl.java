@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,6 @@ public class FilmDbServiceImpl implements FilmService {
 
     @Override
     public FilmDto addFilm(@NonNull Film newFilm) {
-
         validateMPA(newFilm.getMpa());
         validateGenres(newFilm.getGenres());
         Long filmId = storage.addFilm(newFilm);
@@ -111,27 +111,14 @@ public class FilmDbServiceImpl implements FilmService {
         storage.removeLike(filmId, userId);
     }
 
-//    private void checkIfUserExist(long userId) {
-//        if (userStorage.getUserById(userId) == null) {
-//            throw new ValidationException(HttpStatus.NOT_FOUND,
-//                    "The user with id " + userId + " doesn't exist");
-//        }
-//    }
-
-//    private Film getOrThrow(long filmId) {
-//        return Optional.ofNullable(filmStorage.getFilmById(filmId))
-//                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-//                        "The film with id " + filmId + " doesn't exist"));
-//    }
-
     @Override
     public List<FilmDto> findPopularFilms(Integer count) {
-//        log.info("Popular films list is created with limit of {}", count);
-//        return filmStorage.findAllFilms().stream()
-//                .filter(film -> film.getUsersLikes() != null)
-//                .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
-//                .limit(count)
-//                .toList();
-        return List.of();
+        log.info("Popular films list is created with limit of {}", count);
+        return storage.getAllFilms().stream()
+                .filter(film -> film.getUsersLikes() != null)
+                .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
+                .limit(count)
+                .map(FilmMapper::mapToFilmDto)
+                .toList();
     }
 }
