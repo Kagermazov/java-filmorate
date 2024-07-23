@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserFriendDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -32,7 +33,7 @@ public class UserDbServiceImpl implements UserService {
         Long id = storage.addUser(newUser);
 
         newUser.setId(id);
-        return UserMapper.maptoUserCreateDto(newUser);
+        return UserMapper.mapToUserCreateDto(newUser);
     }
 
     @Override
@@ -53,23 +54,31 @@ public class UserDbServiceImpl implements UserService {
         return storage.findAllUsers().stream()
                 .filter(user -> user.getId().equals(updatedUserId))
                 .findFirst()
-                .map(UserMapper::maptoUserCreateDto)
+                .map(UserMapper::mapToUserCreateDto)
                 .get();
     }
 
     @Override
     public List<UserDto> findAllUsers() {
         return storage.findAllUsers().stream()
-                .map(UserMapper::maptoUserCreateDto)
+                .map(UserMapper::mapToUserCreateDto)
                 .toList();
     }
 
     @Override
-    public List<Long> findAllUserFriends(Long userId) {
+    public List<UserFriendDto> findAllUserFriends(Long userId) {
         Set<Long> friendIds = storage.getUserById(userId).getFriends();
 
         if (friendIds != null) {
-            return friendIds.stream().toList();
+            return friendIds.stream()
+                    .map(friendId -> {
+                        UserFriendDto dto = new UserFriendDto();
+
+                        dto.setId(friendId);
+
+                        return dto;
+                    })
+                    .toList();
         }
 
         return List.of();
@@ -77,7 +86,11 @@ public class UserDbServiceImpl implements UserService {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        storage.addFriend(userId, friendId);
+        if (friendId < storage.countUsers()) {
+            storage.addFriend(userId, friendId);
+        } else {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with an id " + friendId);
+        }
     }
 
     @Override

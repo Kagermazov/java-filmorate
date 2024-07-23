@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
+import ru.yandex.practicum.filmorate.dto.user.UserFriendDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
         Long newUserId = newUser.getId();
 
         log.info("The user with id {} was created", newUserId);
-        return UserMapper.maptoUserCreateDto(getUserById(newUserId));
+        return UserMapper.mapToUserCreateDto(getUserById(newUserId));
     }
 
     private User getUserById(Long newUserId) {
@@ -59,19 +60,19 @@ public class UserServiceImpl implements UserService {
         Long updatedUserId = updatedUser.getId();
 
         log.trace("The user with id {} was updated", updatedUserId);
-        return UserMapper.maptoUserCreateDto(getUserById(updatedUserId));
+        return UserMapper.mapToUserCreateDto(getUserById(updatedUserId));
     }
 
     @Override
     public List<UserDto> findAllUsers() {
         log.info("The user list was created");
         return this.storage.findAllUsers().stream()
-                .map(UserMapper::maptoUserCreateDto)
+                .map(UserMapper::mapToUserCreateDto)
                 .toList();
     }
 
     @Override
-    public List<Long> findAllUserFriends(Long userId) {
+    public List<UserFriendDto> findAllUserFriends(Long userId) {
         Set<Long> userFriends = getUserById(userId).getFriends();
 
         if (userFriends == null) {
@@ -113,7 +114,7 @@ public class UserServiceImpl implements UserService {
             log.info("The list of common fiends user with id {} and user with id {} was created", userId, userIdToCompare);
             return intersection.stream()
                     .map(this::getUserById)
-                    .map(UserMapper::maptoUserCreateDto)
+                    .map(UserMapper::mapToUserCreateDto)
                     .toList();
         }
 

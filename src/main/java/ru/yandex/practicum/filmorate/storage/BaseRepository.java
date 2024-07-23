@@ -59,4 +59,8 @@ public class BaseRepository<T> {
             throw new InternalServerException(HttpStatus.INTERNAL_SERVER_ERROR, "Не удалось обновить данные");
         }
     }
+
+    protected Long countUsers(String query) {
+        return jdbc.queryForObject(query, Long.class);
+    }
 }

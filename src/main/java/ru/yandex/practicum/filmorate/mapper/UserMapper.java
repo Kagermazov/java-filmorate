@@ -10,7 +10,7 @@ public class UserMapper {
     private UserMapper() {
     }
 
-    public static UserDto maptoUserCreateDto(User specificUser) {
+    public static UserDto mapToUserCreateDto(User specificUser) {
         UserDto dto = new UserDto();
         Set<Long> friends = specificUser.getFriends();
 

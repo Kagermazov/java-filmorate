@@ -51,8 +51,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> findUserAllFriends(Long userId) {
-        return List.of();
+    public Long countUsers() {
+        return null;
     }
 
     @Override
