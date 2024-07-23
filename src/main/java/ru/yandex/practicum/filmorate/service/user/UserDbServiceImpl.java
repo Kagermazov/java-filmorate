@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserFriendDto;
+import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -29,7 +31,7 @@ public class UserDbServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(User newUser) {
-        validate(newUser);
+        validateUserBirthday(newUser);
         Long id = storage.addUser(newUser);
 
         newUser.setId(id);
@@ -99,16 +101,45 @@ public class UserDbServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> showCommonFriends(Long userId, Long userIdToCompare) {
-        return List.of();
+    public List<UserFriendDto> showCommonFriends(Long userId, Long userIdToCompare) {
+        User firstUser = storage.getUserById(userId);
+        User userToCompare = storage.getUserById(userIdToCompare);
+
+        Set<Long> intersection = Optional.ofNullable(firstUser.getFriends())
+                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
+                        "User with id " + userId + " doesn't have friends"));
+        Set<Long> secondUserFriends = Optional.ofNullable(userToCompare.getFriends())
+                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
+                        "User with id " + userIdToCompare + " doesn't have friends"));
+
+        intersection.retainAll(secondUserFriends);
+        log.info("The list of common fiends user with id {} and user with id {} was created",
+                userId, userIdToCompare);
+
+        return intersection.stream()
+                .map(commonFriendId -> {
+                    UserFriendDto dto = new UserFriendDto();
+
+                    dto.setId(commonFriendId);
+
+                    return dto;
+                })
+                .toList();
     }
 
     @Override
     public void removeFriend(Long userId, Long userToUnfriendId) {
-        storage.removeFriend(userId, userToUnfriendId);
+        validateUserId(userId);
+        validateUserId(userToUnfriendId);
+
+        try {
+            storage.removeFriend(userId, userToUnfriendId);
+        } catch (InternalServerException e) {
+            throw new ValidationException(HttpStatus.OK, e.getMessage());
+        }
     }
 
-    private void validate(@NonNull User userToCheck) {
+    private void validateUserBirthday(@NonNull User userToCheck) {
         if (userToCheck.getBirthday().isAfter(LocalDate.now())) {
             log.warn("The new user's birthday is in the future");
             throw new ValidationException(HttpStatus.BAD_REQUEST, "The birthday is wrong");

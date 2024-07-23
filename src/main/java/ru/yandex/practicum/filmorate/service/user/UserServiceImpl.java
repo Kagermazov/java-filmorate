@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> showCommonFriends(Long userId, Long userIdToCompare) {
+    public List<UserFriendDto> showCommonFriends(Long userId, Long userIdToCompare) {
         Set<Long> intersection = Optional.ofNullable(getUserById(userId).getFriends())
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "User with id " + userId + " doesn't have friends"));
@@ -112,10 +112,11 @@ public class UserServiceImpl implements UserService {
 
         if (intersection.retainAll(secondUserFriends)) {
             log.info("The list of common fiends user with id {} and user with id {} was created", userId, userIdToCompare);
-            return intersection.stream()
-                    .map(this::getUserById)
-                    .map(UserMapper::mapToUserCreateDto)
-                    .toList();
+//            return intersection.stream()
+//                    .map(this::getUserById)
+//                    .map(UserMapper::mapToUserCreateDto)
+//                    .toList();
+            return List.of();
         }
 
         log.info("The user with id {} and user with id {} don't have common friends", userId, userIdToCompare);
