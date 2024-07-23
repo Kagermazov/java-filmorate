@@ -19,7 +19,13 @@ public class UserDtoRowMapper implements RowMapper<UserRowDto> {
         dto.setName(resultSet.getString("user_name"));
         dto.setEmail(resultSet.getString("email"));
         dto.setBirthday(resultSet.getDate("birthday").toLocalDate());
-        dto.setFriendId(resultSet.getLong("friend_id"));
+
+        long friendId = resultSet.getLong("friend_id");
+
+        if(friendId != 0) {
+            dto.setFriendId(friendId);
+        }
+
         return dto;
     }
 }
