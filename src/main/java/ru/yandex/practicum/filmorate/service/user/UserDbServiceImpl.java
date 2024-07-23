@@ -67,6 +67,8 @@ public class UserDbServiceImpl implements UserService {
 
     @Override
     public List<UserFriendDto> findAllUserFriends(Long userId) {
+        validateUserId(userId);
+
         Set<Long> friendIds = storage.getUserById(userId).getFriends();
 
         if (friendIds != null) {
@@ -86,9 +88,12 @@ public class UserDbServiceImpl implements UserService {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        if (friendId < storage.countUsers()) {
-            storage.addFriend(userId, friendId);
-        } else {
+        validateUserId(friendId);
+        storage.addFriend(userId, friendId);
+    }
+
+    private void validateUserId(Long friendId) {
+        if (friendId > storage.countUsers()) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with an id " + friendId);
         }
     }
