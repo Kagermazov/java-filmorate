@@ -38,6 +38,7 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
             "FROM users u " +
             "LEFT JOIN friends f ON u.id = f.user_id " +
             "WHERE u.id = ?;";
+    private static final String COUINT_USERS_QUERY = "SELECT COUNT(id) FROM users;";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<UserRowDto> mapper) {
         super(jdbc, mapper);
@@ -117,11 +118,6 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
     }
 
     @Override
-    public List<User> findUserAllFriends(Long userId) {
-        return List.of();
-    }
-
-    @Override
     public User getUserById(Long userId) {
         List<UserRowDto> dtos = findMany(GET_USER_BY_ID_QUERY, userId);
 
@@ -147,5 +143,9 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
         }
 
         return expectedUser;
+    }
+
+    public Long countUsers() {
+        return countUsers(COUINT_USERS_QUERY);
     }
 }
