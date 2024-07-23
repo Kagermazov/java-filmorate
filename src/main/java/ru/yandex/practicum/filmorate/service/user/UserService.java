@@ -17,7 +17,7 @@ public interface UserService {
 
     void addFriend(Long userId, Long newFriendId);
 
-    List<UserDto> showCommonFriends(Long userId, Long userIdToCompare);
+    List<UserFriendDto> showCommonFriends(Long userId, Long userIdToCompare);
 
     void removeFriend(Long userId, Long friendId);
 }

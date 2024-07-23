@@ -62,7 +62,7 @@ public class UserController {
 
     @GetMapping("{id}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> showCommonFriends(@PathVariable Long id, @PathVariable long otherId) {
+    public List<UserFriendDto> showCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
         return service.showCommonFriends(id, otherId);
     }
 
