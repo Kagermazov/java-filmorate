@@ -19,5 +19,5 @@ public class GenreMapper {
         newGenreDto.setId(specificGenre.getId());
         newGenreDto.setName(specificGenre.getName());
         return newGenreDto;
-}
+    }
 }
