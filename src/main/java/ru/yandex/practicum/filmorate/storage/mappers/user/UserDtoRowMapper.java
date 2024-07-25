@@ -22,7 +22,7 @@ public class UserDtoRowMapper implements RowMapper<UserRowDto> {
 
         long friendId = resultSet.getLong("friend_id");
 
-        if(friendId != 0) {
+        if (friendId != 0) {
             dto.setFriendId(friendId);
         }
 
