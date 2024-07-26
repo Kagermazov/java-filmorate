@@ -14,10 +14,9 @@ public class GenreMapper {
             return null;
         }
 
-        GenreDto newGenreDto = new GenreDto();
-
-        newGenreDto.setId(specificGenre.getId());
-        newGenreDto.setName(specificGenre.getName());
-        return newGenreDto;
+        return GenreDto.builder()
+                .id(specificGenre.getId())
+                .name(specificGenre.getName())
+                .build();
     }
 }

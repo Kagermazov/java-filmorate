@@ -12,13 +12,13 @@ public class UserDtoRowMapper implements RowMapper<UserRowDto> {
 
     @Override
     public UserRowDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        UserRowDto dto = new UserRowDto();
-
-        dto.setId(resultSet.getLong("id"));
-        dto.setLogin(resultSet.getString("login"));
-        dto.setName(resultSet.getString("user_name"));
-        dto.setEmail(resultSet.getString("email"));
-        dto.setBirthday(resultSet.getDate("birthday").toLocalDate());
+        UserRowDto dto = UserRowDto.builder()
+                .id(resultSet.getLong("id"))
+                .login(resultSet.getString("login"))
+                .name(resultSet.getString("user_name"))
+                .email(resultSet.getString("email"))
+                .birthday(resultSet.getDate("birthday").toLocalDate())
+                .build();
 
         long friendId = resultSet.getLong("friend_id");
 

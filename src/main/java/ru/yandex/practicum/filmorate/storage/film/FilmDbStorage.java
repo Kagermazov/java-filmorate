@@ -138,14 +138,6 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
                 .duration(firstDto.getDuration())
                 .build();
 
-//        Film expectedFilm = new Film();
-//        expectedFilm.setId(firstDto.getId());
-//        expectedFilm.setName(firstDto.getName());
-//        expectedFilm.setMpa(firstDto.getMpa());
-//        expectedFilm.setDescription(firstDto.getDescription());
-//        expectedFilm.setReleaseDate(firstDto.getReleaseDate().toLocalDate());
-//        expectedFilm.setDuration(firstDto.getDuration());
-
         List<Genre> genres = dtos.stream()
                 .map(FilmRowDto::getGenre)
                 .toList();
@@ -187,11 +179,14 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     }
 
     private Film combineRows(List<FilmRowDto> dtos) {
-        Film filmToReturn = new Film();
         FilmRowDto firstDto = dtos.getFirst();
-
-        filmToReturn.setId(firstDto.getId());
-        filmToReturn.setName(firstDto.getName());
+        Film filmToReturn = Film.builder()
+                .id(firstDto.getId())
+                .name(firstDto.getName())
+                .description(firstDto.getDescription())
+                .duration(firstDto.getDuration())
+                .releaseDate(firstDto.getReleaseDate().toLocalDate())
+                .build();
 
         Mpa filmMpa = firstDto.getMpa();
 
@@ -206,9 +201,6 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         }
 
         filmToReturn.setMpa(filmMpa);
-        filmToReturn.setDescription(firstDto.getDescription());
-        filmToReturn.setDuration(firstDto.getDuration());
-        filmToReturn.setReleaseDate(firstDto.getReleaseDate().toLocalDate());
 
         filmToReturn.setGenres(
                 dtos.stream()

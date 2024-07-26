@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import ru.yandex.practicum.filmorate.service.film.ReleaseDateConstraint;
 
 import java.time.LocalDate;
@@ -15,30 +14,29 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-@RequiredArgsConstructor
 @Builder
 public class Film {
     @Nullable
     @Positive
-    private final Long id;
+    private Long id;
 
     @NotBlank(message = "A film name in mandatory")
-    private final String name;
+    private String name;
 
     @Nullable
-    private final Mpa mpa;
+    private Mpa mpa;
 
     @Size(max = 200, message = "A description length is more than 200 symbols")
     @NotBlank(message = "A film description in mandatory")
-    private final String description;
+    private String description;
 
     @NonNull
     @ReleaseDateConstraint
-    private final LocalDate releaseDate;
+    private LocalDate releaseDate;
 
     @NonNull
     @Positive
-    private final Integer duration;
+    private Integer duration;
 
     @Nullable
     private List<Genre> genres;

@@ -11,18 +11,20 @@ public class UserMapper {
     }
 
     public static UserDto mapToUserCreateDto(User specificUser) {
-        UserDto dto = new UserDto();
-        Set<Long> friends = specificUser.getFriends();
+        UserDto dto = UserDto.builder()
+                .id(specificUser.getId())
+                .email(specificUser.getEmail())
+                .login(specificUser.getLogin())
+                .name(specificUser.getName())
+                .birthday(specificUser.getBirthday())
+                .build();
 
-        dto.setId(specificUser.getId());
-        dto.setEmail(specificUser.getEmail());
-        dto.setLogin(specificUser.getLogin());
-        dto.setName(specificUser.getName());
-        dto.setBirthday(specificUser.getBirthday());
+        Set<Long> friends = specificUser.getFriends();
 
         if (friends != null) {
             dto.setFriends(friends);
         }
+
         return dto;
     }
 }

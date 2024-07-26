@@ -13,7 +13,16 @@ public class FilmMapper {
     }
 
     public static FilmDto mapToFilmDto(Film specificFilm) {
-        FilmDto dto = new FilmDto();
+        FilmDto dto = FilmDto.builder()
+                .id(specificFilm.getId())
+                .name(specificFilm.getName())
+                .mpa(MpaMapper.mapToMpaDto(specificFilm.getMpa()))
+                .description(specificFilm.getDescription())
+                .releaseDate(specificFilm.getReleaseDate())
+                .duration(specificFilm.getDuration())
+                .usersLikes(specificFilm.getUsersLikes())
+                .build();
+
         List<Genre> filmGenres = specificFilm.getGenres();
 
         if (filmGenres != null) {
@@ -24,13 +33,6 @@ public class FilmMapper {
             dto.setGenres(dtos);
         }
 
-        dto.setId(specificFilm.getId());
-        dto.setName(specificFilm.getName());
-        dto.setMpa(MpaMapper.mapToMpaDto(specificFilm.getMpa()));
-        dto.setDescription(specificFilm.getDescription());
-        dto.setReleaseDate(specificFilm.getReleaseDate());
-        dto.setDuration(specificFilm.getDuration());
-        dto.setUsersLikes(specificFilm.getUsersLikes());
         return dto;
     }
 }

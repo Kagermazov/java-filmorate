@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.dto.user;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class UserFriendDto {
     Long id;
 }

@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.dto;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class MpaDto {
     private Long id;
     private String name;

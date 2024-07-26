@@ -109,26 +109,18 @@ public class UserDbServiceImpl implements UserService {
 
     private static List<UserFriendDto> getIntersection(Set<Long> intersection) {
         return intersection.stream()
-                .map(commonFriendId -> {
-                    UserFriendDto dto = new UserFriendDto();
-
-                    dto.setId(commonFriendId);
-
-                    return dto;
-                })
+                .map(commonFriendId -> UserFriendDto.builder()
+                        .id(commonFriendId)
+                        .build())
                 .toList();
     }
 
     private static List<UserFriendDto> getFriends(Set<Long> friendIds) {
         if (friendIds != null) {
             return friendIds.stream()
-                    .map(friendId -> {
-                        UserFriendDto dto = new UserFriendDto();
-
-                        dto.setId(friendId);
-
-                        return dto;
-                    })
+                    .map(friendId -> UserFriendDto.builder()
+                            .id(friendId)
+                            .build())
                     .toList();
         }
         return List.of();

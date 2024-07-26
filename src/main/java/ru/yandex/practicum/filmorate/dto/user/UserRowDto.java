@@ -2,14 +2,14 @@ package ru.yandex.practicum.filmorate.dto.user;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class UserRowDto {
     @Nullable
     private Long id;

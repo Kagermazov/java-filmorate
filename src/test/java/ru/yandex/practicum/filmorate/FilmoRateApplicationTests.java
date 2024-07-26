@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -26,39 +25,35 @@ import static org.junit.jupiter.api.Assertions.*;
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({User.class, UserDbStorage.class, FilmDbStorage.class, FilmsRowMapper.class, GenreRowMapper.class,
-        MpaRowMapper.class,
+@Import({UserDbStorage.class, FilmDbStorage.class, FilmsRowMapper.class, GenreRowMapper.class, MpaRowMapper.class,
         UserDtoRowMapper.class})
 class FilmoRateApplicationTests {
     private final UserDbStorage userStorage;
     private final FilmDbStorage filmStorage;
-    private static final User testUser = new User();
-    private static final User secondTestUser = new User();
-    private static final Film testFilm = new Film();
-    private static final Film secondTestFilm = new Film();
-
-    @BeforeAll
-    static void beforeAll() {
-        testUser.setLogin("login");
-        testUser.setName("name");
-        testUser.setEmail("mail@email.com");
-        testUser.setBirthday(LocalDate.EPOCH);
-
-        secondTestUser.setLogin("secondUserLogin");
-        secondTestUser.setName("secondUserName");
-        secondTestUser.setEmail("secondUserEmail@email.com");
-        secondTestUser.setBirthday(LocalDate.EPOCH.plusYears(1));
-
-        testFilm.setName("name");
-        testFilm.setDescription("description");
-        testFilm.setReleaseDate(LocalDate.EPOCH);
-        testFilm.setDuration(42);
-
-        secondTestFilm.setName("secondTestFilmName");
-        secondTestFilm.setDescription("secondTestFilmDescription");
-        secondTestFilm.setReleaseDate(LocalDate.EPOCH.plusYears(1));
-        secondTestFilm.setDuration(43);
-    }
+    private final Film testFilm = Film.builder()
+            .name("name")
+            .description("description")
+            .releaseDate(LocalDate.EPOCH)
+            .duration(42)
+            .build();
+    private final Film secondTestFilm = Film.builder()
+            .name("secondTestFilmName")
+            .description("secondTestFilmDescription")
+            .releaseDate(LocalDate.EPOCH.plusYears(1))
+            .duration(43)
+            .build();
+    private final User testUser = User.builder()
+            .login("login")
+            .name("name")
+            .email("mail@email.com")
+            .birthday(LocalDate.EPOCH)
+            .build();
+    private final User secondTestUser = User.builder()
+            .login("secondLogin")
+            .name("secondName")
+            .email("secondMail@email.com")
+            .birthday(LocalDate.EPOCH)
+            .build();
 
     @Test
     void testAddUser() {
@@ -99,13 +94,14 @@ class FilmoRateApplicationTests {
     @Test
     void testUpdateUser() {
         Long testUserId = userStorage.addUser(testUser);
-        User testUpdatedUser = new User();
-
-        testUpdatedUser.setId(testUserId);
-        testUpdatedUser.setLogin("updatedLogin");
-        testUpdatedUser.setName("updatedName");
-        testUpdatedUser.setEmail("updatedEmail@email.com");
-        testUpdatedUser.setBirthday(LocalDate.EPOCH.plusYears(1));
+        User testUpdatedUser = User.builder()
+                .id(testUserId)
+                .login("updatedLogin")
+                .name("updatedName")
+                .email("updatedName")
+                .birthday(LocalDate.EPOCH.plusYears(1))
+                .build();
+        ;
 
         userStorage.updateUser(testUpdatedUser);
 
@@ -147,7 +143,7 @@ class FilmoRateApplicationTests {
         Long testFilmId = filmStorage.addFilm(testFilm);
         Long userId = userStorage.addUser(testUser);
 
-        filmStorage.addLike(testFilmId,userId);
+        filmStorage.addLike(testFilmId, userId);
 
         Set<Long> likes = filmStorage.getFilmById(testFilmId).getUsersLikes();
 
@@ -177,13 +173,13 @@ class FilmoRateApplicationTests {
     @Test
     void testUpdateFilm() {
         Long testFilmId = filmStorage.addFilm(testFilm);
-        Film testUpdatedFilm = new Film();
-
-        testUpdatedFilm.setId(testFilmId);
-        testUpdatedFilm.setName("updatedName");
-        testUpdatedFilm.setDescription("updatedDescription");
-        testUpdatedFilm.setReleaseDate(LocalDate.EPOCH.plusYears(1));
-        testUpdatedFilm.setDuration(43);
+        Film testUpdatedFilm = Film.builder()
+                .id(testFilmId)
+                .name("updatedName")
+                .description("updatedDescription")
+                .releaseDate(LocalDate.EPOCH.plusYears(1))
+                .duration(43)
+                .build();
 
         filmStorage.updateFilm(testUpdatedFilm);
 

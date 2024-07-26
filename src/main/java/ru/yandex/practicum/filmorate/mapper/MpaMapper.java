@@ -9,10 +9,9 @@ public class MpaMapper {
     }
 
     public static MpaDto mapToMpaDto(Mpa specificMpa) {
-        MpaDto dto = new MpaDto();
-
-        dto.setId(specificMpa.getId());
-        dto.setName(specificMpa.getName());
-        return dto;
+        return MpaDto.builder()
+                .id(specificMpa.getId())
+                .name(specificMpa.getName())
+                .build();
     }
 }

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.user;
 
-import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +45,7 @@ public class UserServiceImpl implements UserService {
 
     private User getUserById(Long newUserId) {
         return this.storage.findAllUsers().stream()
-                .filter(user -> user.getId() == newUserId)
+                .filter(user -> user.getId().equals(newUserId))
                 .findFirst()
                 .get();
     }
@@ -84,14 +83,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public @Nullable void addFriend(Long userId, Long newFriendId) {
+    public void addFriend(Long userId, Long newFriendId) {
         User firstUser = getUserById(userId);
         User newFriend = getUserById(newFriendId);
 
         if (firstUser.getFriends() == null) {
             firstUser.setFriends(new HashSet<>());
         }
-//fixme вынести проверку на сет друзей из-под ифа
+
         if (firstUser.getFriends().add(newFriendId) && newFriend.getFriends() == null) {
             newFriend.setFriends(new HashSet<>());
             newFriend.getFriends().add(userId);
@@ -112,10 +111,6 @@ public class UserServiceImpl implements UserService {
 
         if (intersection.retainAll(secondUserFriends)) {
             log.info("The list of common fiends user with id {} and user with id {} was created", userId, userIdToCompare);
-//            return intersection.stream()
-//                    .map(this::getUserById)
-//                    .map(UserMapper::mapToUserCreateDto)
-//                    .toList();
             return List.of();
         }
 
