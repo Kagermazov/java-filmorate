@@ -15,8 +15,8 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class BaseRepository<T> {
-    protected final JdbcTemplate jdbc;
-    protected final RowMapper<T> mapper;
+    private final JdbcTemplate jdbc;
+    private final RowMapper<T> mapper;
 
     protected Optional<T> findOne(String query, Object... params) {
         try {

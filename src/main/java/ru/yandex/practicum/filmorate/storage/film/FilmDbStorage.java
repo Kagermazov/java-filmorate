@@ -91,7 +91,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
 
     @Override
     public Optional<Film> getFilmById(Long id) {
-        Optional<FilmRowDto> dtoFromBase = findOne(GET_FILM_BY_ID_QUERY, mapper);
+        Optional<FilmRowDto> dtoFromBase = findOne(GET_FILM_BY_ID_QUERY);
 
         if (dtoFromBase.isEmpty()) {
             return Optional.empty();
@@ -111,7 +111,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
 
     @Override
     public List<Film> getAllFilms() {
-        List<FilmRowDto> films = findMany(GET_ALL_FILMS_QUERY, mapper);
+        List<FilmRowDto> films = findMany(GET_ALL_FILMS_QUERY);
         Map<Long, List<FilmRowDto>> filmIdToFilmRowDto = films.stream()
                 .collect(groupingBy(FilmRowDto::getId));
 
