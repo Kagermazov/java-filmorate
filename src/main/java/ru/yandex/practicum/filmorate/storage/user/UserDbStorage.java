@@ -38,7 +38,8 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
             "FROM users u " +
             "LEFT JOIN friends f ON u.id = f.user_id " +
             "WHERE u.id = ?;";
-    private static final String COUINT_USERS_QUERY = "SELECT COUNT(id) FROM users;";
+    private static final String COUNT_USERS_QUERY = "SELECT COUNT(id) FROM users;";
+    private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?;";
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<UserRowDto> mapper) {
         super(jdbc, mapper);
@@ -146,6 +147,10 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
     }
 
     public Long countUsers() {
-        return countUsers(COUINT_USERS_QUERY);
+        return countRows(COUNT_USERS_QUERY);
+    }
+
+    public void deleteUser(Long id) {
+       update(DELETE_USER_QUERY, id);
     }
 }

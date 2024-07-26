@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.user;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +30,11 @@ public class UserDbServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(User newUser) {
+        Long newUserId = newUser.getId();
+
+        checkIfUserIdIsNull(newUserId);
         validateUserBirthday(newUser);
+
         Long id = storage.addUser(newUser);
 
         newUser.setId(id);
@@ -41,23 +44,13 @@ public class UserDbServiceImpl implements UserService {
     @Override
     public UserDto updateUser(User updatedUser) {
         Long updatedUserId = updatedUser.getId();
-        List<Long> usersId = storage.findAllUsers().stream()
-                .map(User::getId)
-                .toList();
 
-        if (!usersId.contains(updatedUserId)) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with id " + updatedUserId);
-        }
-
+        checkIfIdExists(updatedUserId);
         storage.updateUser(updatedUser);
 
         log.info("The user with an id {} was updated", updatedUserId);
 
-        return storage.findAllUsers().stream()
-                .filter(user -> user.getId().equals(updatedUserId))
-                .findFirst()
-                .map(UserMapper::mapToUserCreateDto)
-                .get();
+        return getUserDto(updatedUserId);
     }
 
     @Override
@@ -69,20 +62,13 @@ public class UserDbServiceImpl implements UserService {
 
     @Override
     public List<UserFriendDto> findAllUserFriends(Long userId) {
-        validateUserId(userId);
+        checkIfIdExists(userId);
 
         Set<Long> friendIds = storage.getUserById(userId).getFriends();
+        List<UserFriendDto> friends = getFriends(friendIds);
 
-        if (friendIds != null) {
-            return friendIds.stream()
-                    .map(friendId -> {
-                        UserFriendDto dto = new UserFriendDto();
-
-                        dto.setId(friendId);
-
-                        return dto;
-                    })
-                    .toList();
+        if (friends != null) {
+            return friends;
         }
 
         return List.of();
@@ -90,14 +76,8 @@ public class UserDbServiceImpl implements UserService {
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-        validateUserId(friendId);
+        checkIfIdExists(friendId);
         storage.addFriend(userId, friendId);
-    }
-
-    private void validateUserId(Long friendId) {
-        if (friendId > storage.countUsers()) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with an id " + friendId);
-        }
     }
 
     @Override
@@ -105,17 +85,29 @@ public class UserDbServiceImpl implements UserService {
         User firstUser = storage.getUserById(userId);
         User userToCompare = storage.getUserById(userIdToCompare);
 
-        Set<Long> intersection = Optional.ofNullable(firstUser.getFriends())
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "User with id " + userId + " doesn't have friends"));
-        Set<Long> secondUserFriends = Optional.ofNullable(userToCompare.getFriends())
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "User with id " + userIdToCompare + " doesn't have friends"));
+        Set<Long> intersection = getUsersFriends(userId, firstUser);
+        Set<Long> secondUserFriends = getUsersFriends(userIdToCompare, userToCompare);
 
         intersection.retainAll(secondUserFriends);
         log.info("The list of common fiends user with id {} and user with id {} was created",
                 userId, userIdToCompare);
 
+        return getIntersection(intersection);
+    }
+
+    @Override
+    public void removeFriend(Long userId, Long userToUnfriendId) {
+        checkIfIdExists(userId);
+        checkIfIdExists(userToUnfriendId);
+
+        try {
+            storage.removeFriend(userId, userToUnfriendId);
+        } catch (InternalServerException e) {
+            throw new ValidationException(HttpStatus.OK, e.getMessage());
+        }
+    }
+
+    private static List<UserFriendDto> getIntersection(Set<Long> intersection) {
         return intersection.stream()
                 .map(commonFriendId -> {
                     UserFriendDto dto = new UserFriendDto();
@@ -127,22 +119,51 @@ public class UserDbServiceImpl implements UserService {
                 .toList();
     }
 
-    @Override
-    public void removeFriend(Long userId, Long userToUnfriendId) {
-        validateUserId(userId);
-        validateUserId(userToUnfriendId);
+    private static List<UserFriendDto> getFriends(Set<Long> friendIds) {
+        if (friendIds != null) {
+            return friendIds.stream()
+                    .map(friendId -> {
+                        UserFriendDto dto = new UserFriendDto();
 
-        try {
-            storage.removeFriend(userId, userToUnfriendId);
-        } catch (InternalServerException e) {
-            throw new ValidationException(HttpStatus.OK, e.getMessage());
+                        dto.setId(friendId);
+
+                        return dto;
+                    })
+                    .toList();
         }
+        return List.of();
     }
 
-    private void validateUserBirthday(@NonNull User userToCheck) {
+    private static Set<Long> getUsersFriends(Long userId, User specificUser) {
+        return Optional.ofNullable(specificUser.getFriends())
+                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
+                        "User with id " + userId + " doesn't have friends"));
+    }
+
+    private void validateUserBirthday(User userToCheck) {
         if (userToCheck.getBirthday().isAfter(LocalDate.now())) {
             log.warn("The new user's birthday is in the future");
             throw new ValidationException(HttpStatus.BAD_REQUEST, "The birthday is wrong");
         }
+    }
+
+    private void checkIfIdExists(Long friendId) {
+        if (friendId == null || friendId > storage.countUsers()) {
+            throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with an id " + friendId);
+        }
+    }
+
+    private static void checkIfUserIdIsNull(Long newUserId) {
+        if (newUserId != null) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST, "The user has the id " + newUserId);
+        }
+    }
+
+    private UserDto getUserDto(Long updatedUserId) {
+        return storage.findAllUsers().stream()
+                .filter(user -> user.getId().equals(updatedUserId))
+                .findFirst()
+                .map(UserMapper::mapToUserCreateDto)
+                .get();
     }
 }

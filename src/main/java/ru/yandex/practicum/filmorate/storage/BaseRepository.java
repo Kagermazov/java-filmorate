@@ -60,7 +60,7 @@ public class BaseRepository<T> {
         }
     }
 
-    protected Long countUsers(String query) {
+    protected Long countRows(String query) {
         return jdbc.queryForObject(query, Long.class);
     }
 }

@@ -19,12 +19,29 @@ public class FilmsRowMapper implements RowMapper<FilmRowDto>, Serializable {
     public FilmRowDto mapRow(ResultSet resultSet, int rowNum) throws SQLException {
 
         FilmRowDto filmRowDto = new FilmRowDto();
+        long userId = resultSet.getLong("user_id");
+
+        if (userId != 0) {
+            filmRowDto.setUserId(userId);
+        }
+
+        filmRowDto.setId(resultSet.getLong("id"));
+        filmRowDto.setName(resultSet.getString("film_name"));
+        filmRowDto.setDescription(resultSet.getString("description"));
+        filmRowDto.setReleaseDate(resultSet.getDate("release_date"));
+        filmRowDto.setDuration(resultSet.getInt("duration"));
+
         Mpa filmMpa = new Mpa();
+        long rating = resultSet.getLong("rating");
+        String mpaName = resultSet.getString("mpa_name");
+
+        if (rating != 0 && mpaName != null) {
+            filmMpa.setId(rating);
+            filmMpa.setName(mpaName);
+            filmRowDto.setMpa(filmMpa);
+        }
+
         Genre filmGenre = new Genre();
-
-        filmMpa.setId(resultSet.getLong("rating"));
-        filmMpa.setName(resultSet.getString("mpa_name"));
-
         long genreId = resultSet.getLong("genre_id");
         String genreName = resultSet.getString("genre_name");
 
@@ -33,14 +50,6 @@ public class FilmsRowMapper implements RowMapper<FilmRowDto>, Serializable {
             filmGenre.setName(genreName);
             filmRowDto.setGenre(filmGenre);
         }
-
-        filmRowDto.setId(resultSet.getLong("id"));
-        filmRowDto.setName(resultSet.getString("film_name"));
-        filmRowDto.setMpa(filmMpa);
-        filmRowDto.setDescription(resultSet.getString("description"));
-        filmRowDto.setReleaseDate(resultSet.getDate("release_date"));
-        filmRowDto.setDuration(resultSet.getInt("duration"));
-        filmRowDto.setUserId(resultSet.getLong("user_id"));
 
         log.info("a filmRowDto is created");
         return filmRowDto;
