@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -62,10 +63,14 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
 
     @Override
     public long addFilm(Film newFilm) {
+        Mpa filmMpa = newFilm.getMpa();
+        Long mpaId = null;
 
-        Long mpaId = newFilm.getMpa().getId();
+        if (filmMpa != null) {
+            mpaId = filmMpa.getId();
+        }
 
-        long id = insert(ADD_FILM_QUERY,
+        long filmId = insert(ADD_FILM_QUERY,
                 newFilm.getName(),
                 mpaId,
                 newFilm.getDescription(),
@@ -81,18 +86,34 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
                     }
 
                     for (Long genreId : genreIds) {
-                        insert(ADD_TO_FILMS_GENRE_QUERY, id, genreId);
+                        insert(ADD_TO_FILMS_GENRE_QUERY, filmId, genreId);
                     }
                 });
 
-        return id;
+        Optional.ofNullable(newFilm.getUsersLikes())
+                .ifPresent(likes -> {
+                    Set<Long> userIds = new HashSet<>(likes);
+
+                    for (Long userId : userIds) {
+                        insert(ADD_LIKE_QUERY, filmId, userId);
+                    }
+                });
+
+        return filmId;
     }
 
     @Override
     public void updateFilm(Film updatedFilm) {
+        Mpa filmMpa = updatedFilm.getMpa();
+        Long mpaId = null;
+
+        if (filmMpa != null) {
+            mpaId = filmMpa.getId();
+        }
+
         update(UPDATE_FILM_QUERY,
                 updatedFilm.getName(),
-                updatedFilm.getMpa().getId(),
+                mpaId,
                 updatedFilm.getDescription(),
                 updatedFilm.getReleaseDate(),
                 updatedFilm.getDuration(),
@@ -107,15 +128,23 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
             return null;
         }
 
-        Film expectedFilm = new Film();
         FilmRowDto firstDto = dtos.getFirst();
+        Film expectedFilm = Film.builder()
+                .id(firstDto.getId())
+                .name(firstDto.getName())
+                .mpa(firstDto.getMpa())
+                .description(firstDto.getDescription())
+                .releaseDate(firstDto.getReleaseDate().toLocalDate())
+                .duration(firstDto.getDuration())
+                .build();
 
-        expectedFilm.setId(firstDto.getId());
-        expectedFilm.setName(firstDto.getName());
-        expectedFilm.setMpa(firstDto.getMpa());
-        expectedFilm.setDescription(firstDto.getDescription());
-        expectedFilm.setReleaseDate(firstDto.getReleaseDate().toLocalDate());
-        expectedFilm.setDuration(firstDto.getDuration());
+//        Film expectedFilm = new Film();
+//        expectedFilm.setId(firstDto.getId());
+//        expectedFilm.setName(firstDto.getName());
+//        expectedFilm.setMpa(firstDto.getMpa());
+//        expectedFilm.setDescription(firstDto.getDescription());
+//        expectedFilm.setReleaseDate(firstDto.getReleaseDate().toLocalDate());
+//        expectedFilm.setDuration(firstDto.getDuration());
 
         List<Genre> genres = dtos.stream()
                 .map(FilmRowDto::getGenre)
@@ -123,6 +152,14 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
 
         if (!genres.contains(null)) {
             expectedFilm.setGenres(genres);
+        }
+
+        Set<Long> likes = dtos.stream()
+                .map(FilmRowDto::getUserId)
+                .collect(Collectors.toSet());
+
+        if (!likes.contains(null) && !likes.contains(0L)) {
+            expectedFilm.setUsersLikes(likes);
         }
 
         return expectedFilm;
@@ -134,7 +171,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     }
 
     @Override
-    public void removeLike(Long filmId, Long userId) {
+    public void deleteLike(Long filmId, Long userId) {
         update(DELETE_LIKE, filmId, userId);
     }
 
@@ -156,10 +193,17 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         filmToReturn.setId(firstDto.getId());
         filmToReturn.setName(firstDto.getName());
 
-        Mpa filmMpa = new Mpa();
+        Mpa filmMpa = firstDto.getMpa();
 
-        filmMpa.setId(firstDto.getMpa().getId());
-        filmMpa.setName(firstDto.getMpa().getName());
+        if (filmMpa != null) {
+            long rating = firstDto.getMpa().getId();
+            String mpaName = firstDto.getMpa().getName();
+
+            if (rating != 0 && mpaName != null) {
+                filmMpa.setId(rating);
+                filmMpa.setName(mpaName);
+            }
+        }
 
         filmToReturn.setMpa(filmMpa);
         filmToReturn.setDescription(firstDto.getDescription());

@@ -17,6 +17,7 @@ public class GenreDbStorage extends BaseRepository<Genre> {
 
     public static final String FIND_ALL_GENRES = "SELECT * " +
             "FROM GENRE;";
+    private static final String COUNT_GENRES_QUERY = "SELECT COUNT(id) FROM GENRE;";
 
     public GenreDbStorage(JdbcTemplate jdbc, RowMapper<Genre> mapper) {
         super(jdbc, mapper);
@@ -28,5 +29,9 @@ public class GenreDbStorage extends BaseRepository<Genre> {
 
     public List<Genre> findAllGenres() {
         return findMany(FIND_ALL_GENRES);
+    }
+
+    public Long countGenres() {
+        return countRows(COUNT_GENRES_QUERY);
     }
 }
