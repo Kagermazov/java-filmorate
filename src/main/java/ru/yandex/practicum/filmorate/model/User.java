@@ -3,17 +3,19 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class User {
     @Nullable
+    @Positive
     private Long id;
     @NotBlank(message = "A login is mandatory")
     private String login;

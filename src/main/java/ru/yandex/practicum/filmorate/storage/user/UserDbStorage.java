@@ -91,21 +91,18 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
     }
 
     private User combineRows(List<UserRowDto> users) {
-        User userToReturn = new User();
         UserRowDto firstDto = users.getFirst();
 
-        userToReturn.setId(firstDto.getId());
-        userToReturn.setLogin(firstDto.getLogin());
-        userToReturn.setName(firstDto.getName());
-        userToReturn.setEmail(firstDto.getEmail());
-        userToReturn.setBirthday(firstDto.getBirthday());
-
-        userToReturn.setFriends(
-                users.stream()
+        return User.builder()
+                .id(firstDto.getId())
+                .login(firstDto.getLogin())
+                .name(firstDto.getName())
+                .email(firstDto.getEmail())
+                .birthday(firstDto.getBirthday())
+                .friends(users.stream()
                         .map(UserRowDto::getFriendId)
-                        .collect(Collectors.toSet()));
-
-        return userToReturn;
+                        .collect(Collectors.toSet()))
+                .build();
     }
 
     @Override
@@ -126,14 +123,15 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
             return null;
         }
 
-        User expectedUser = new User();
         UserRowDto firstDto = dtos.getFirst();
 
-        expectedUser.setId(firstDto.getId());
-        expectedUser.setLogin(firstDto.getLogin());
-        expectedUser.setName(firstDto.getName());
-        expectedUser.setEmail(firstDto.getEmail());
-        expectedUser.setBirthday(firstDto.getBirthday());
+        User expectedUser = User.builder()
+                .id(firstDto.getId())
+                .login(firstDto.getLogin())
+                .name(firstDto.getName())
+                .email(firstDto.getEmail())
+                .birthday(firstDto.getBirthday())
+                .build();
 
         Set<Long> friends = dtos.stream()
                 .map(UserRowDto::getFriendId)
@@ -151,6 +149,6 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
     }
 
     public void deleteUser(Long id) {
-       update(DELETE_USER_QUERY, id);
+        update(DELETE_USER_QUERY, id);
     }
 }

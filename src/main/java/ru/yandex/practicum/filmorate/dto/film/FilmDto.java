@@ -4,8 +4,8 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
+@Builder
 public class FilmDto {
     @Nullable
     @Positive
