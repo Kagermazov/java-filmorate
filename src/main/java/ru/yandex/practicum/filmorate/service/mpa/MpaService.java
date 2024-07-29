@@ -24,7 +24,7 @@ public class MpaService {
     public MpaDto findMpaName(long id) {
         return MpaMapper.mapToMpaDto(this.storage.findMpaName(id)
                 .orElseThrow(() -> new EntityNotFoundException(HttpStatus.NOT_FOUND,
-                                "There's no genre with id " + id)));
+                        "There's no genre with id " + id)));
     }
 
     public List<MpaDto> findAllMpa() {

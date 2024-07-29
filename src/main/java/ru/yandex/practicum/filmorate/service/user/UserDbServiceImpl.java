@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserFriendDto;
+import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -18,7 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-@Service("userDbServiceImpl")
+@Service
 public class UserDbServiceImpl implements UserService {
     private final UserStorage storage;
 
@@ -162,6 +163,7 @@ public class UserDbServiceImpl implements UserService {
                 .filter(user -> user.getId().equals(updatedUserId))
                 .findFirst()
                 .map(UserMapper::mapToUserCreateDto)
-                .get();
+                .orElseThrow(() -> new InternalServerException(HttpStatus.NOT_FOUND,
+                        "The user with an id " + updatedUserId + " was updated but not found in the storage"));
     }
 }

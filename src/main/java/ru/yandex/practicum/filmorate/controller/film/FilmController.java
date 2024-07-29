@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller.film;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +25,7 @@ public class FilmController {
     private final FilmService service;
 
     @Autowired
-    public FilmController(@Qualifier("filmDbServiceImpl") FilmService serviceForFilms) {
+    public FilmController(FilmService serviceForFilms) {
         service = serviceForFilms;
     }
 

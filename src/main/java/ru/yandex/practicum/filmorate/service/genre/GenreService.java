@@ -22,7 +22,7 @@ public class GenreService {
     }
 
     public GenreDto findGenreById(Long id) {
-        return GenreMapper.mapToGenreDto(this.storage.findGenreById(id).orElseThrow(()->
+        return GenreMapper.mapToGenreDto(this.storage.findGenreById(id).orElseThrow(() ->
                 new EntityNotFoundException(HttpStatus.NOT_FOUND, "There's no genre with id " + id)));
     }
 

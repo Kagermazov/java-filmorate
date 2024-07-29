@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -20,7 +19,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
-@Service
 public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
@@ -105,7 +103,7 @@ public class FilmServiceImpl implements FilmService {
         userStorage.findAllUsers().stream()
                 .filter(user -> Objects.equals(user.getId(), userId))
                 .findFirst().orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                "The user with id " + userId + " doesn't exist"));
+                        "The user with id " + userId + " doesn't exist"));
     }
 
     @Override

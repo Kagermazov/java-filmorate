@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserFriendDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -22,7 +21,6 @@ import java.util.Set;
 
 @Slf4j
 @Getter
-@Service
 public class UserServiceImpl implements UserService {
     private final UserStorage storage;
 

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Service("filmDbServiceImpl")
+@Service
 public class FilmDbServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
     private final GenreDbStorage genreStorage;
