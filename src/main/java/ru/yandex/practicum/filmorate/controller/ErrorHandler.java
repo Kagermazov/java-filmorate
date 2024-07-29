@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 @Slf4j
@@ -19,6 +21,21 @@ public class ErrorHandler {
 
         log.warn("Exception: ", e);
         return new ResponseEntity<>(response, e.getStatus());
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleInternalServerException(InternalServerException e) {
+        ErrorResponse response = new ErrorResponse(e.toString(), e.getMessage());
+
+        log.warn("Exception: ", e);
+        return new ResponseEntity<>(response, e.getStatus());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException e) {
+        log.warn("Exception: ", e);
+        return new ErrorResponse(e.toString(), e.getMessage());
     }
 
     @ExceptionHandler

@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
 
+import java.sql.PreparedStatement;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
             "LEFT JOIN genre ON films_genre.genre_id = genre.id " +
             "LEFT JOIN films_users fu ON films.id = fu.film_id " +
             "WHERE films.id = ?;";
+    public static final int BATCH_SIZE = 100;
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<FilmRowDto> mapper) {
         super(jdbc, mapper);
@@ -70,34 +72,10 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
             mpaId = filmMpa.getId();
         }
 
-        long filmId = insert(ADD_FILM_QUERY,
-                newFilm.getName(),
-                mpaId,
-                newFilm.getDescription(),
-                newFilm.getReleaseDate(),
-                newFilm.getDuration());
+        long filmId = getFilmId(newFilm, mpaId);
 
-        Optional.ofNullable(newFilm.getGenres())
-                .ifPresent(genres -> {
-                    Set<Long> genreIds = new HashSet<>();
-
-                    for (Genre filmGenre : genres) {
-                        genreIds.add(filmGenre.getId());
-                    }
-
-                    for (Long genreId : genreIds) {
-                        insert(ADD_TO_FILMS_GENRE_QUERY, filmId, genreId);
-                    }
-                });
-
-        Optional.ofNullable(newFilm.getUsersLikes())
-                .ifPresent(likes -> {
-                    Set<Long> userIds = new HashSet<>(likes);
-
-                    for (Long userId : userIds) {
-                        insert(ADD_LIKE_QUERY, filmId, userId);
-                    }
-                });
+        addGenresToDb(newFilm, filmId);
+        addLikesToDb(newFilm, filmId);
 
         return filmId;
     }
@@ -111,13 +89,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
             mpaId = filmMpa.getId();
         }
 
-        update(UPDATE_FILM_QUERY,
-                updatedFilm.getName(),
-                mpaId,
-                updatedFilm.getDescription(),
-                updatedFilm.getReleaseDate(),
-                updatedFilm.getDuration(),
-                updatedFilm.getId());
+        updateFilmInfo(updatedFilm, mpaId);
     }
 
     @Override
@@ -129,26 +101,15 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         }
 
         FilmRowDto firstDto = dtos.getFirst();
-        Film expectedFilm = Film.builder()
-                .id(firstDto.getId())
-                .name(firstDto.getName())
-                .mpa(firstDto.getMpa())
-                .description(firstDto.getDescription())
-                .releaseDate(firstDto.getReleaseDate().toLocalDate())
-                .duration(firstDto.getDuration())
-                .build();
+        Film expectedFilm = buildFilm(firstDto);
 
-        List<Genre> genres = dtos.stream()
-                .map(FilmRowDto::getGenre)
-                .toList();
+        List<Genre> genres = getGenres(dtos);
 
         if (!genres.contains(null)) {
             expectedFilm.setGenres(genres);
         }
 
-        Set<Long> likes = dtos.stream()
-                .map(FilmRowDto::getUserId)
-                .collect(Collectors.toSet());
+        Set<Long> likes = getLikes(dtos);
 
         if (!likes.contains(null) && !likes.contains(0L)) {
             expectedFilm.setUsersLikes(likes);
@@ -173,6 +134,10 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         Map<Long, List<FilmRowDto>> filmIdToFilmRowDto = films.stream()
                 .collect(groupingBy(FilmRowDto::getId));
 
+        return getFilms(filmIdToFilmRowDto);
+    }
+
+    private List<Film> getFilms(Map<Long, List<FilmRowDto>> filmIdToFilmRowDto) {
         return filmIdToFilmRowDto.values().stream()
                 .map(this::combineRows)
                 .toList();
@@ -180,13 +145,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
 
     private Film combineRows(List<FilmRowDto> dtos) {
         FilmRowDto firstDto = dtos.getFirst();
-        Film filmToReturn = Film.builder()
-                .id(firstDto.getId())
-                .name(firstDto.getName())
-                .description(firstDto.getDescription())
-                .duration(firstDto.getDuration())
-                .releaseDate(firstDto.getReleaseDate().toLocalDate())
-                .build();
+        Film filmToReturn = buildFilm(firstDto);
 
         Mpa filmMpa = firstDto.getMpa();
 
@@ -203,9 +162,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         filmToReturn.setMpa(filmMpa);
 
         filmToReturn.setGenres(
-                dtos.stream()
-                        .map(FilmRowDto::getGenre)
-                        .toList()
+                getGenres(dtos)
         );
 
         filmToReturn.setUsersLikes(
@@ -219,5 +176,74 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         );
 
         return filmToReturn;
+    }
+
+    private long getFilmId(Film newFilm, Long mpaId) {
+        return insert(ADD_FILM_QUERY,
+                newFilm.getName(),
+                mpaId,
+                newFilm.getDescription(),
+                newFilm.getReleaseDate(),
+                newFilm.getDuration());
+    }
+
+    private void addLikesToDb(Film newFilm, long filmId) {
+        Optional.ofNullable(newFilm.getUsersLikes())
+                .ifPresent(likes ->
+                        jdbc.batchUpdate(ADD_LIKE_QUERY, likes, BATCH_SIZE,
+                                (PreparedStatement ps, Long userId) -> {
+                                    ps.setLong(1, filmId);
+                                    ps.setLong(2, userId);
+                                }));
+    }
+
+    private void addGenresToDb(Film newFilm, long filmId) {
+        Optional.ofNullable(newFilm.getGenres())
+                .ifPresent(genres -> {
+                    Set<Long> genreIds = new HashSet<>();
+
+                    for (Genre filmGenre : genres) {
+                        genreIds.add(filmGenre.getId());
+                    }
+
+                    jdbc.batchUpdate(ADD_TO_FILMS_GENRE_QUERY, genreIds, BATCH_SIZE,
+                            (PreparedStatement ps, Long genreId) -> {
+                                ps.setLong(1, filmId);
+                                ps.setLong(2, genreId);
+                            });
+                });
+    }
+
+    private void updateFilmInfo(Film updatedFilm, Long mpaId) {
+        update(UPDATE_FILM_QUERY,
+                updatedFilm.getName(),
+                mpaId,
+                updatedFilm.getDescription(),
+                updatedFilm.getReleaseDate(),
+                updatedFilm.getDuration(),
+                updatedFilm.getId());
+    }
+
+    private static Film buildFilm(FilmRowDto firstDto) {
+        return Film.builder()
+                .id(firstDto.getId())
+                .name(firstDto.getName())
+                .mpa(firstDto.getMpa())
+                .description(firstDto.getDescription())
+                .releaseDate(firstDto.getReleaseDate().toLocalDate())
+                .duration(firstDto.getDuration())
+                .build();
+    }
+
+    private static Set<Long> getLikes(List<FilmRowDto> dtos) {
+        return dtos.stream()
+                .map(FilmRowDto::getUserId)
+                .collect(Collectors.toSet());
+    }
+
+    private static List<Genre> getGenres(List<FilmRowDto> dtos) {
+        return dtos.stream()
+                .map(FilmRowDto::getGenre)
+                .toList();
     }
 }

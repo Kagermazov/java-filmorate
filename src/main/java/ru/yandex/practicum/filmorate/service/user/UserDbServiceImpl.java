@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserFriendDto;
-import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -38,6 +37,7 @@ public class UserDbServiceImpl implements UserService {
         Long id = storage.addUser(newUser);
 
         newUser.setId(id);
+        log.info("The user with an id {} was created", id);
         return UserMapper.mapToUserCreateDto(newUser);
     }
 
@@ -99,11 +99,17 @@ public class UserDbServiceImpl implements UserService {
     public void removeFriend(Long userId, Long userToUnfriendId) {
         checkIfIdExists(userId);
         checkIfIdExists(userToUnfriendId);
+        checkIfUserHasThatFriend(userId, userToUnfriendId);
+        storage.removeFriend(userId, userToUnfriendId);
 
-        try {
-            storage.removeFriend(userId, userToUnfriendId);
-        } catch (InternalServerException e) {
-            throw new ValidationException(HttpStatus.OK, e.getMessage());
+    }
+
+    private void checkIfUserHasThatFriend(Long userId, Long userToUnfriendId) {
+        Set<Long> userFriends = storage.getUserById(userId).getFriends();
+
+        if (userFriends == null || !userFriends.contains(userToUnfriendId)) {
+            throw new ValidationException(HttpStatus.OK,
+                    "The user with an id " + userId + " doesn't have a friend with an id " + userToUnfriendId);
         }
     }
 

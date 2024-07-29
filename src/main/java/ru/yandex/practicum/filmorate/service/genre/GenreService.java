@@ -5,8 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
@@ -23,11 +22,8 @@ public class GenreService {
     }
 
     public GenreDto findGenreById(Long id) {
-        if (this.storage.findAllGenres().size() < id) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "There's no genre with an id " + id);
-        }
-        return GenreMapper.mapToGenreDto(this.storage.findGenreById(id)
-                .orElseThrow(() -> new InternalServerException(HttpStatus.INTERNAL_SERVER_ERROR, "Null is returned")));
+        return GenreMapper.mapToGenreDto(this.storage.findGenreById(id).orElseThrow(()->
+                new EntityNotFoundException(HttpStatus.NOT_FOUND, "There's no genre with id " + id)));
     }
 
     public List<GenreDto> findAllGenres() {

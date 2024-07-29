@@ -132,7 +132,8 @@ public class FilmDbServiceImpl implements FilmService {
                 .filter(film -> film.getId().equals(updatedFilmId))
                 .findFirst()
                 .map(FilmMapper::mapToFilmDto)
-                .get();
+                .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "The film with an id " + updatedFilmId + " was updated, but not found in the storage"));
     }
 
     private List<FilmDto> getFilmDtos() {

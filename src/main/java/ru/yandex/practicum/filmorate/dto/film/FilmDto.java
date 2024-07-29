@@ -5,8 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.service.film.ReleaseDateConstraint;
@@ -15,8 +18,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-@Data
+
 @Builder
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class FilmDto {
     @Nullable
     @Positive

@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.dto.film.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -102,16 +101,11 @@ public class FilmServiceImpl implements FilmService {
                 .remove(userId);
     }
 
-    private void checkIfUserExist(long userId) {
-        User userToCHeck = userStorage.findAllUsers().stream()
-                .filter(user -> user.getId() == userId)
-                .findFirst()
-                .get();
-
-        if (userToCHeck == null) {
-            throw new ValidationException(HttpStatus.NOT_FOUND,
-                    "The user with id " + userId + " doesn't exist");
-        }
+    private void checkIfUserExist(Long userId) {
+        userStorage.findAllUsers().stream()
+                .filter(user -> Objects.equals(user.getId(), userId))
+                .findFirst().orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
+                "The user with id " + userId + " doesn't exist"));
     }
 
     @Override

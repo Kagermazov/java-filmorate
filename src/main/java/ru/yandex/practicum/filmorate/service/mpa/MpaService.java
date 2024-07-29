@@ -5,8 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
-import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.MpaMapper;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
@@ -23,12 +22,9 @@ public class MpaService {
     }
 
     public MpaDto findMpaName(long id) {
-        if (this.storage.findAllMpa().size() < id) {
-            throw new ValidationException(HttpStatus.NOT_FOUND, "There's no rating with an id " + id);
-        }
-
         return MpaMapper.mapToMpaDto(this.storage.findMpaName(id)
-                .orElseThrow(() -> new InternalServerException(HttpStatus.INTERNAL_SERVER_ERROR, "Null is returned")));
+                .orElseThrow(() -> new EntityNotFoundException(HttpStatus.NOT_FOUND,
+                                "There's no genre with id " + id)));
     }
 
     public List<MpaDto> findAllMpa() {
