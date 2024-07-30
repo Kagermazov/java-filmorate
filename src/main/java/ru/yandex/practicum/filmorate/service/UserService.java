@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service.user;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +20,14 @@ import java.util.Set;
 
 @Slf4j
 @Service
-public class UserDbServiceImpl implements UserService {
+public class UserService {
     private final UserStorage storage;
 
     @Autowired
-    public UserDbServiceImpl(@Qualifier("userDbStorage") UserStorage storageDb) {
+    public UserService(@Qualifier("userDbStorage") UserStorage storageDb) {
         storage = storageDb;
     }
 
-    @Override
     public UserDto addUser(User newUser) {
         Long newUserId = newUser.getId();
 
@@ -42,7 +41,6 @@ public class UserDbServiceImpl implements UserService {
         return UserMapper.mapToUserCreateDto(newUser);
     }
 
-    @Override
     public UserDto updateUser(User updatedUser) {
         Long updatedUserId = updatedUser.getId();
 
@@ -54,14 +52,12 @@ public class UserDbServiceImpl implements UserService {
         return getUserDto(updatedUserId);
     }
 
-    @Override
     public List<UserDto> findAllUsers() {
         return storage.findAllUsers().stream()
                 .map(UserMapper::mapToUserCreateDto)
                 .toList();
     }
 
-    @Override
     public List<UserFriendDto> findAllUserFriends(Long userId) {
         checkIfIdExists(userId);
 
@@ -75,13 +71,11 @@ public class UserDbServiceImpl implements UserService {
         return List.of();
     }
 
-    @Override
     public void addFriend(Long userId, Long friendId) {
         checkIfIdExists(friendId);
         storage.addFriend(userId, friendId);
     }
 
-    @Override
     public List<UserFriendDto> showCommonFriends(Long userId, Long userIdToCompare) {
         User firstUser = storage.getUserById(userId);
         User userToCompare = storage.getUserById(userIdToCompare);
@@ -96,7 +90,6 @@ public class UserDbServiceImpl implements UserService {
         return getIntersection(intersection);
     }
 
-    @Override
     public void removeFriend(Long userId, Long userToUnfriendId) {
         checkIfIdExists(userId);
         checkIfIdExists(userToUnfriendId);

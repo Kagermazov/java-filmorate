@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
-import ru.yandex.practicum.filmorate.service.mpa.MpaService;
+import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
 
