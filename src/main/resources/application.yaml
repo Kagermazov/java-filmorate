@@ -1,4 +1,4 @@
-logging.level.org.zalando.logbook: TRACE
+logging.level.org.zalando.logbook: INFO
 filmorate:
   CINEMA_INVENTION_DATE: "1895-12-28"
   server:

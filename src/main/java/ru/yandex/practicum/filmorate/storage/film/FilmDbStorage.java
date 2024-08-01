@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
 
 import java.sql.PreparedStatement;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,6 +29,25 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
             "INSERT INTO films (film_name, rating, description, release_date, duration) VALUES (?, ?, ?, ?, ?);";
     private static final String ADD_TO_FILMS_GENRE_QUERY = "INSERT INTO films_genre (film_id, genre_id) VALUES (?, ?);";
     private static final String ADD_LIKE_QUERY = "INSERT INTO films_users (film_id, user_id) VALUES (?, ?)";
+    private static final String GET_POPULAR_FILMS_QUERY = "SELECT films.*, " +
+            "mpa.mpa_name, " +
+            "genre.id AS genre_id, " +
+            "genre_name, " +
+            "films_users.user_id " +
+            "FROM films_users " +
+            "INNER JOIN ( " +
+            "SELECT likes.film_id AS id_of_film, " +
+            "COUNT(*) as number_of_likes " +
+            "FROM films_users as likes " +
+            "GROUP BY likes.film_id " +
+            "ORDER BY number_of_likes DESC, " +
+            "likes.film_id " +
+            ") likes ON films_users.film_id = likes.id_of_film " +
+            "INNER JOIN films ON films_users.film_id = films.id " +
+            "LEFT JOIN films_genre ON films.id = films_genre.film_id " +
+            "LEFT JOIN mpa ON films.rating = mpa.id " +
+            "LEFT JOIN genre ON films_genre.genre_id = genre.id " +
+            "LIMIT ?";
     private static final String DELETE_LIKE = "DELETE FROM films_users WHERE film_id = ? AND user_id = ?;";
     private static final String UPDATE_FILM_QUERY = "UPDATE films " +
             "SET film_name = ?, " +
@@ -77,6 +97,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         addGenresToDb(newFilm, filmId);
         addLikesToDb(newFilm, filmId);
 
+        log.info("The film with the id {} is added", filmId);
         return filmId;
     }
 
@@ -121,6 +142,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     @Override
     public void addLike(Long filmId, Long userId) {
         insert(ADD_LIKE_QUERY, filmId, userId);
+        log.info("A like from the user with the id {} to the film with the id {} was added", userId, filmId);
     }
 
     @Override
@@ -137,9 +159,19 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
         return getFilms(filmIdToFilmRowDto);
     }
 
+    @Override
+    public List<Film> getPopularFilms(Integer limit) {
+        List<FilmRowDto> films = findMany(GET_POPULAR_FILMS_QUERY, limit);
+        Map<Long, List<FilmRowDto>> filmIdToFilmRowDto = films.stream()
+                .collect(groupingBy(FilmRowDto::getId));
+
+        return getFilms(filmIdToFilmRowDto).reversed();
+    }
+
     private List<Film> getFilms(Map<Long, List<FilmRowDto>> filmIdToFilmRowDto) {
         return filmIdToFilmRowDto.values().stream()
                 .map(this::combineRows)
+                .sorted(Comparator.comparing(film -> film.getUsersLikes().size()))
                 .toList();
     }
 
@@ -244,6 +276,7 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     private static List<Genre> getGenres(List<FilmRowDto> dtos) {
         return dtos.stream()
                 .map(FilmRowDto::getGenre)
+                .distinct()
                 .toList();
     }
 }

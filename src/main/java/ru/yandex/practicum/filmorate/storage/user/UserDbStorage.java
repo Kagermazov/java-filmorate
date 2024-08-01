@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dto.user.UserRowDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.BaseRepository;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
             "WHERE u.id = ?;";
     private static final String COUNT_USERS_QUERY = "SELECT COUNT(id) FROM users;";
     private static final String DELETE_USER_QUERY = "DELETE FROM users WHERE id = ?;";
+    public static final int BATCH_SIZE = 100;
 
     public UserDbStorage(JdbcTemplate jdbc, RowMapper<UserRowDto> mapper) {
         super(jdbc, mapper);
@@ -53,20 +55,10 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
             userName = newUser.getLogin();
         }
 
-        long id = insert(ADD_USER_QUERY,
-                newUser.getEmail(),
-                userName,
-                newUser.getLogin(),
-                newUser.getBirthday());
+        long userId = buildUser(newUser, userName);
 
-        Optional.ofNullable(newUser.getFriends())
-                .ifPresent(friends -> {
-                    for (Long friendId : friends) {
-                        insert(ADD_FRIEND_QUERY, newUser.getId(), friendId);
-                    }
-                });
-
-        return id;
+        addFriendIfPossible(newUser, userId);
+        return userId;
     }
 
     @Override
@@ -85,24 +77,7 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
         List<UserRowDto> users = findMany(GET_ALL_USER_QUERY);
         Map<Long, List<UserRowDto>> userIdToUser = users.stream().collect(groupingBy(UserRowDto::getId));
 
-        return userIdToUser.values().stream()
-                .map(this::combineRows)
-                .toList();
-    }
-
-    private User combineRows(List<UserRowDto> users) {
-        UserRowDto firstDto = users.getFirst();
-
-        return User.builder()
-                .id(firstDto.getId())
-                .login(firstDto.getLogin())
-                .name(firstDto.getName())
-                .email(firstDto.getEmail())
-                .birthday(firstDto.getBirthday())
-                .friends(users.stream()
-                        .map(UserRowDto::getFriendId)
-                        .collect(Collectors.toSet()))
-                .build();
+        return getUsers(userIdToUser);
     }
 
     @Override
@@ -133,9 +108,7 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
                 .birthday(firstDto.getBirthday())
                 .build();
 
-        Set<Long> friends = dtos.stream()
-                .map(UserRowDto::getFriendId)
-                .collect(Collectors.toSet());
+        Set<Long> friends = getFriends(dtos);
 
         if (!friends.contains(null)) {
             expectedUser.setFriends(friends);
@@ -150,5 +123,50 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
 
     public void deleteUser(Long id) {
         update(DELETE_USER_QUERY, id);
+    }
+
+    private User combineRows(List<UserRowDto> users) {
+        UserRowDto firstDto = users.getFirst();
+
+        return User.builder()
+                .id(firstDto.getId())
+                .login(firstDto.getLogin())
+                .name(firstDto.getName())
+                .email(firstDto.getEmail())
+                .birthday(firstDto.getBirthday())
+                .friends(users.stream()
+                        .map(UserRowDto::getFriendId)
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    private void addFriendIfPossible(User newUser, long userId) {
+        Optional.ofNullable(newUser.getFriends())
+                .ifPresent(friends ->
+                        jdbc.batchUpdate(ADD_FRIEND_QUERY, friends, BATCH_SIZE,
+                                (PreparedStatement ps, Long friendId) -> {
+                                    ps.setLong(1, userId);
+                                    ps.setLong(2, friendId);
+                                }));
+    }
+
+    private static Set<Long> getFriends(List<UserRowDto> dtos) {
+        return dtos.stream()
+                .map(UserRowDto::getFriendId)
+                .collect(Collectors.toSet());
+    }
+
+    private List<User> getUsers(Map<Long, List<UserRowDto>> userIdToUser) {
+        return userIdToUser.values().stream()
+                .map(this::combineRows)
+                .toList();
+    }
+
+    private long buildUser(User newUser, String userName) {
+        return insert(ADD_USER_QUERY,
+                newUser.getEmail(),
+                userName,
+                newUser.getLogin(),
+                newUser.getBirthday());
     }
 }

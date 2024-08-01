@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,16 +72,13 @@ public class FilmService {
         filmStorage.deleteLike(filmId, userId);
     }
 
-    public List<FilmDto> findPopularFilms(Integer count) {
-        log.info("Popular films list is created with limit of {}", count);
-        return getPopularFilms(count);
+    public List<FilmDto> findPopularFilms(Integer limit) {
+        log.info("Popular films list is created with limit of {}", limit);
+        return getPopularFilms(limit);
     }
 
-    private List<FilmDto> getPopularFilms(Integer count) {
-        return filmStorage.getAllFilms().stream()
-                .filter(film -> film.getUsersLikes() != null)
-                .sorted(Comparator.comparing(film -> -1 /*reversed*/ * film.getUsersLikes().size()))
-                .limit(count)
+    private List<FilmDto> getPopularFilms(Integer limit) {
+        return filmStorage.getPopularFilms(limit).stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
     }
@@ -104,13 +100,13 @@ public class FilmService {
     }
 
     private void validateMPA(Mpa mpa) {
-        try {
-            Long mpaId = mpa.getId();
+        if (mpa == null) {
+            return;
+        }
 
-            if (mpaId == null || isMpaPresent(mpaId)) {
-                throw new ValidationException(HttpStatus.BAD_REQUEST, "Fail MPA");
-            }
-        } catch (NullPointerException e) {
+        Long mpaId = mpa.getId();
+
+        if (mpaId == null || isMpaPresent(mpaId)) {
             throw new ValidationException(HttpStatus.BAD_REQUEST, "Fail MPA");
         }
     }
@@ -120,12 +116,7 @@ public class FilmService {
     }
 
     private FilmDto getFilmDto(Long updatedFilmId) {
-        return filmStorage.getAllFilms().stream()
-                .filter(film -> film.getId().equals(updatedFilmId))
-                .findFirst()
-                .map(FilmMapper::mapToFilmDto)
-                .orElseThrow(() -> new ValidationException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "The film with an id " + updatedFilmId + " was updated, but not found in the storage"));
+        return FilmMapper.mapToFilmDto(filmStorage.getFilmById(updatedFilmId));
     }
 
     private List<FilmDto> getFilmDtos() {

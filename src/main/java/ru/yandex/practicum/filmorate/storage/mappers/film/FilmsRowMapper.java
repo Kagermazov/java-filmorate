@@ -56,7 +56,6 @@ public class FilmsRowMapper implements RowMapper<FilmRowDto>, Serializable {
             filmRowDto.setGenre(filmGenre);
         }
 
-        log.info("a filmRowDto is created");
         return filmRowDto;
     }
 }

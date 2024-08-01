@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.dto.user.UserFriendDto;
-import ru.yandex.practicum.filmorate.exceptions.InternalServerException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
@@ -38,7 +37,7 @@ public class UserService {
 
         newUser.setId(id);
         log.info("The user with an id {} was created", id);
-        return UserMapper.mapToUserCreateDto(newUser);
+        return UserMapper.mapToDto(newUser);
     }
 
     public UserDto updateUser(User updatedUser) {
@@ -54,7 +53,7 @@ public class UserService {
 
     public List<UserDto> findAllUsers() {
         return storage.findAllUsers().stream()
-                .map(UserMapper::mapToUserCreateDto)
+                .map(UserMapper::mapToDto)
                 .toList();
     }
 
@@ -140,7 +139,7 @@ public class UserService {
     }
 
     private void checkIfIdExists(Long friendId) {
-        if (friendId == null || friendId > storage.countUsers()) {
+        if (friendId == null || storage.getUserById(friendId) == null) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "There's no user with an id " + friendId);
         }
     }
@@ -152,11 +151,6 @@ public class UserService {
     }
 
     private UserDto getUserDto(Long updatedUserId) {
-        return storage.findAllUsers().stream()
-                .filter(user -> user.getId().equals(updatedUserId))
-                .findFirst()
-                .map(UserMapper::mapToUserCreateDto)
-                .orElseThrow(() -> new InternalServerException(HttpStatus.NOT_FOUND,
-                        "The user with an id " + updatedUserId + " was updated but not found in the storage"));
+        return UserMapper.mapToDto(storage.getUserById(updatedUserId));
     }
 }

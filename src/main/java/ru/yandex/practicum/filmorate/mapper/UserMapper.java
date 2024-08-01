@@ -10,7 +10,7 @@ public class UserMapper {
     private UserMapper() {
     }
 
-    public static UserDto mapToUserCreateDto(User specificUser) {
+    public static UserDto mapToDto(User specificUser) {
         UserDto dto = UserDto.builder()
                 .id(specificUser.getId())
                 .email(specificUser.getEmail())
