@@ -1,6 +1,21 @@
-logging.level.org.zalando.logbook: WARN
+logging.level.org.zalando.logbook: INFO
 filmorate:
   CINEMA_INVENTION_DATE: "1895-12-28"
   server:
     error:
       include-message: always
+
+spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+  datasource:
+    url: jdbc:h2:file:./db/filmorate
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  h2:
+    console:
+      enabled: 'true'

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -12,45 +11,60 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
-@Component
+@Component("inMemoryFilmStorage")
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private long counter;
 
     @Override
-    public void addFilm(@NonNull Film newFilm) {
+    public long addFilm(@NonNull Film newFilm) {
         newFilm.setId(getNextId());
-        this.films.put(newFilm.getId(), newFilm);
+        films.put(newFilm.getId(), newFilm);
+        return newFilm.getId();
     }
 
     @Override
     public void updateFilm(Film updatedFilm) {
         Long updatedFilmId = updatedFilm.getId();
 
-        if (!this.films.containsKey(updatedFilmId)) {
+        if (!films.containsKey(updatedFilmId)) {
             throw new ValidationException(HttpStatus.NOT_FOUND, "There's no film with id " + updatedFilmId);
         }
 
-        this.films.replace(updatedFilmId, updatedFilm);
+        films.replace(updatedFilmId, updatedFilm);
     }
 
-    public List<Film> findAllFilms() {
-        return this.films.values().stream().toList();
-    }
-
-    @Override
-    public Film getFilmById(long filmId) {
-        return this.films.get(filmId);
-    }
-
-    @Override
     public void deleteFilms() {
-        this.films.clear();
+        films.clear();
+    }
+
+    @Override
+    public List<Film> getAllFilms() {
+        return films.values().stream().toList();
+    }
+
+    @Override
+    public List<Film> getPopularFilms(Integer limit) {
+        return List.of();
+    }
+
+    @Override
+    public Film getFilmById(Long filmId) {
+        return films.get(filmId);
+    }
+
+    @Override
+    public void addLike(Long filmId, Long userId) {
+
+    }
+
+    @Override
+    public void deleteLike(Long filmId, Long userId) {
+
     }
 
     private long getNextId() {
-        return ++this.counter;
+        return ++counter;
     }
 }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto.film;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
@@ -10,18 +10,21 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
+import ru.yandex.practicum.filmorate.dto.GenreDto;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
 import ru.yandex.practicum.filmorate.service.film.ReleaseDateConstraint;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+
 @Builder
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
-public class Film {
+public class FilmDto {
     @Nullable
     @Positive
     private Long id;
@@ -30,7 +33,7 @@ public class Film {
     private String name;
 
     @Nullable
-    private Mpa mpa;
+    private MpaDto mpa;
 
     @Size(max = 200, message = "A description length is more than 200 symbols")
     @NotBlank(message = "A film description in mandatory")
@@ -45,7 +48,7 @@ public class Film {
     private Integer duration;
 
     @Nullable
-    private List<Genre> genres;
+    private List<GenreDto> genres;
 
     @Nullable
     private Set<Long> usersLikes;
