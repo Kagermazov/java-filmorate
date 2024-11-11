@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/filmorate
+    username: postgres
+    password: password
+  sql:
+    init:
+      mode:always
