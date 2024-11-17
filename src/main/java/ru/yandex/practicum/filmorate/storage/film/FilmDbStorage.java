@@ -64,8 +64,8 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
             "FROM films " +
             "LEFT JOIN films_genre ON films.id=films_genre.film_id " +
             "LEFT JOIN mpa ON films.rating = mpa.id " +
-            "LEFT JOIN genre ON films_genre.genre_id=genre.id " +
-            "LEFT JOIN films_users fu ON films.id =fu.film_id";
+            "LEFT JOIN genre ON films_genre.genre_id = genre.id " +
+            "LEFT JOIN films_users fu ON films.id = fu.film_id;";
     private static final String GET_FILM_BY_ID_QUERY = "SELECT films.*, " +
             "mpa.mpa_name, " +
             "genre.id as genre_id, " +

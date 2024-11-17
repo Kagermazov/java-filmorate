@@ -59,6 +59,12 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -79,7 +85,8 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.4.0</version>
                 <configuration>
-                    <configLocation>checkstyle.xml</configLocation>
+                    <configLocation>src/main/resources/checkstyle.xml</configLocation>
+                    <suppressionsLocation>src/main/resources/suppressions.xml</suppressionsLocation>
                     <failOnViolation>true</failOnViolation>
                     <logViolationsToConsole>true</logViolationsToConsole>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>

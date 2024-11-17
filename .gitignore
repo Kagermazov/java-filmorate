@@ -45,4 +45,4 @@ build/
 *.db
 db/*
 
-checkstyle.xml
+src/main/resources/checkstyle.xml
