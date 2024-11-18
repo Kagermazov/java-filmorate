@@ -3,6 +3,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/filmorate
     username: postgres
     password: password
+    schema: schema.sql
+    data: data.sql
   sql:
     init:
       mode:always
