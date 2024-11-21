@@ -1,12 +1,15 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,18 +19,24 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-@Builder
+@Entity(name = "Film")
+//@Builder
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+//@EqualsAndHashCode
+@NoArgsConstructor
 public class Film {
+
+    @Id
+    @GeneratedValue
     @Nullable
     @Positive
     private Long id;
 
     @NotBlank(message = "A film name in mandatory")
     private String name;
+
 
     @Nullable
     private Mpa mpa;
@@ -44,6 +53,7 @@ public class Film {
     @Positive
     private Integer duration;
 
+    @OneToMany
     @Nullable
     private List<Genre> genres;
 

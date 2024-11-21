@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.film.FilmRowDto;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.io.Serializable;
@@ -48,12 +47,12 @@ public class FilmsRowMapper implements RowMapper<FilmRowDto>, Serializable {
         String genreName = resultSet.getString("genre_name");
 
         if (genreId != 0 && genreName != null) {
-            Genre filmGenre = Genre.builder()
-                    .id(genreId)
-                    .name(genreName)
-                    .build();
+//            Genre filmGenre = Genre.builder()
+//                    .id(genreId)
+//                    .name(genreName)
+//                    .build();
 
-            filmRowDto.setGenre(filmGenre);
+//            filmRowDto.setGenre(filmGenre);
         }
 
         return filmRowDto;

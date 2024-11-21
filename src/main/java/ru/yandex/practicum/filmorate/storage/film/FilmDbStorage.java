@@ -257,14 +257,15 @@ public class FilmDbStorage extends BaseRepository<FilmRowDto> implements FilmSto
     }
 
     private static Film buildFilm(FilmRowDto firstDto) {
-        return Film.builder()
-                .id(firstDto.getId())
-                .name(firstDto.getName())
-                .mpa(firstDto.getMpa())
-                .description(firstDto.getDescription())
-                .releaseDate(firstDto.getReleaseDate().toLocalDate())
-                .duration(firstDto.getDuration())
-                .build();
+        return null;
+//                Film.builder()
+//                .id(firstDto.getId())
+//                .name(firstDto.getName())
+//                .mpa(firstDto.getMpa())
+//                .description(firstDto.getDescription())
+//                .releaseDate(firstDto.getReleaseDate().toLocalDate())
+//                .duration(firstDto.getDuration())
+//                .build();
     }
 
     private static Set<Long> getLikes(List<FilmRowDto> dtos) {
