@@ -10,6 +10,7 @@ spring:
     properties:
       hibernate:
         format-sql: true
+    open-in-view: false
   sql:
     init:
       mode:always

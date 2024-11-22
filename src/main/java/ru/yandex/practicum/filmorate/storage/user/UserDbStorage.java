@@ -100,21 +100,22 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
 
         UserRowDto firstDto = dtos.getFirst();
 
-        User expectedUser = User.builder()
-                .id(firstDto.getId())
-                .login(firstDto.getLogin())
-                .name(firstDto.getName())
-                .email(firstDto.getEmail())
-                .birthday(firstDto.getBirthday())
-                .build();
+//        User expectedUser = User.builder()
+//                .id(firstDto.getId())
+//                .login(firstDto.getLogin())
+//                .name(firstDto.getName())
+//                .email(firstDto.getEmail())
+//                .birthday(firstDto.getBirthday())
+//                .build();
 
         Set<Long> friends = getFriends(dtos);
 
         if (!friends.contains(null)) {
-            expectedUser.setFriends(friends);
+//            expectedUser.setFriends(friends);
         }
 
-        return expectedUser;
+        return null;
+//                expectedUser;
     }
 
     public Long countUsers() {
@@ -128,16 +129,17 @@ public class UserDbStorage extends BaseRepository<UserRowDto> implements UserSto
     private User combineRows(List<UserRowDto> users) {
         UserRowDto firstDto = users.getFirst();
 
-        return User.builder()
-                .id(firstDto.getId())
-                .login(firstDto.getLogin())
-                .name(firstDto.getName())
-                .email(firstDto.getEmail())
-                .birthday(firstDto.getBirthday())
-                .friends(users.stream()
-                        .map(UserRowDto::getFriendId)
-                        .collect(Collectors.toSet()))
-                .build();
+        return null;
+//                User.builder()
+//                .id(firstDto.getId())
+//                .login(firstDto.getLogin())
+//                .name(firstDto.getName())
+//                .email(firstDto.getEmail())
+//                .birthday(firstDto.getBirthday())
+//                .friends(users.stream()
+//                        .map(UserRowDto::getFriendId)
+//                        .collect(Collectors.toSet()))
+//                .build();
     }
 
     private void addFriendIfPossible(User newUser, long userId) {

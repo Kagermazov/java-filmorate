@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -14,12 +15,15 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Builder
+@Entity
+//@Builder
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+//@EqualsAndHashCode
 public class User {
+    @Id
+    @GeneratedValue
     @Nullable
     @Positive
     private Long id;
