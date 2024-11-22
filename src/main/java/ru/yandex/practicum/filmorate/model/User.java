@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -15,27 +16,31 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Entity
-//@Builder
+@Entity(name = "User")
 @Getter
 @Setter
 @ToString
-//@EqualsAndHashCode
 public class User {
     @Id
     @GeneratedValue
-    @Nullable
+    @Column(nullable = false)
     @Positive
     private Long id;
+
     @NotBlank(message = "A login is mandatory")
     private String login;
+
     @Nullable
     private String name;
+
     @NotBlank(message = "An email is mandatory")
     @Email
     private String email;
+
+    @Column(nullable = false)
     @NonNull
     private LocalDate birthday;
+
     @Nullable
     private Set<Long> friends;
 }

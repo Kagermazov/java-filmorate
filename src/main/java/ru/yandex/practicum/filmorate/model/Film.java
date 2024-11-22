@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -21,17 +22,15 @@ import java.util.List;
 import java.util.Set;
 
 @Entity(name = "Film")
-//@Builder
 @Getter
 @Setter
 @ToString
-//@EqualsAndHashCode
 @NoArgsConstructor
 public class Film {
 
     @Id
     @GeneratedValue
-    @Nullable
+    @Column(nullable = false)
     @Positive
     private Long id;
 
@@ -46,16 +45,19 @@ public class Film {
     @NotBlank(message = "A film description in mandatory")
     private String description;
 
+    @Column(nullable = false)
     @NonNull
     @ReleaseDateConstraint
     private LocalDate releaseDate;
 
+    @Column(nullable = false)
     @NonNull
     @Positive
     private Integer duration;
 
     @OneToMany
     @Nullable
+    @ToString.Exclude
     private List<Genre> genres;
 
     @Nullable
