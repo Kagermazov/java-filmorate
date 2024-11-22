@@ -11,7 +11,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,7 +24,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
+//@NoArgsConstructor
 public class Film {
 
     @Id
