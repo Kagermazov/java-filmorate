@@ -34,6 +34,7 @@ public class Film {
     @Positive
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     @NotBlank(message = "A film name in mandatory")
     private String name;
 
@@ -41,6 +42,7 @@ public class Film {
     @Nullable
     private Mpa mpa;
 
+    @Column(columnDefinition = "TEXT")
     @Size(max = 200, message = "A description length is more than 200 symbols")
     @NotBlank(message = "A film description in mandatory")
     private String description;

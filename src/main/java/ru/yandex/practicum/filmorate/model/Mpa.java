@@ -20,5 +20,6 @@ public class Mpa {
     @Column(nullable = false)
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String name;
 }

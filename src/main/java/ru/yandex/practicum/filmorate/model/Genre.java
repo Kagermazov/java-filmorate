@@ -18,5 +18,6 @@ public class Genre {
     @Column(nullable = false)
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String name;
 }

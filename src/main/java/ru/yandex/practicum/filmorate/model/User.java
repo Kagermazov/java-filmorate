@@ -16,7 +16,7 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Entity(name = "User")
+@Entity(name = "Users")
 @Getter
 @Setter
 @ToString
