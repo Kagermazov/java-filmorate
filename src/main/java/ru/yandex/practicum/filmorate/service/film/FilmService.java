@@ -22,6 +22,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class FilmService {
+    public static final String FILM_NOT_FOUND = "There's now film with an id";
     private final FilmRepository repository;
     private final GenreDbStorage genreStorage;
     private final MpaDbStorage mpaStorage;
@@ -43,9 +44,7 @@ public class FilmService {
 
         Optional<Film> optionalFilm = repository.findById(filmId);
 
-        if (optionalFilm.isEmpty()) {
-            throw new EntityNotFoundException(HttpStatus.INTERNAL_SERVER_ERROR, "The film wasn't saved");
-        }
+        checkIfFilmExits(optionalFilm, HttpStatus.INTERNAL_SERVER_ERROR, "The film wasn't saved");
 
         return FilmMapper.mapToFilmDto(optionalFilm.get());
     }
@@ -69,19 +68,31 @@ public class FilmService {
     public FilmDto getFilmById(Long id) {
         Optional<Film> optionalFilm = repository.findById(id);
 
-        if (optionalFilm.isEmpty()) {
-            throw new EntityNotFoundException(HttpStatus.NOT_FOUND, "There's no film with an id" + id);
-        }
+        checkIfFilmExits(optionalFilm, HttpStatus.NOT_FOUND, FILM_NOT_FOUND + id);
 
         return FilmMapper.mapToFilmDto(optionalFilm.get());
     }
 
     public void addLike(Long filmId, Long userId) {
-        repository.addLike(filmId, userId);
+        Optional<Film> optionalFilm = repository.findById(filmId);
+
+        checkIfFilmExits(optionalFilm, HttpStatus.NOT_FOUND, FILM_NOT_FOUND + filmId);
+
+        Film updatedFilm = optionalFilm.get();
+
+        optionalFilm.get().getUsersLikes().add(userId);
+        repository.save(updatedFilm);
     }
 
     public void removeLike(Long filmId, Long userId) {
-        repository.deleteLike(filmId, userId);
+        Optional<Film> optionalFilm = repository.findById(filmId);
+
+        checkIfFilmExits(optionalFilm, HttpStatus.NOT_FOUND, FILM_NOT_FOUND + filmId);
+
+        Film updatedFilm = optionalFilm.get();
+
+        optionalFilm.get().getUsersLikes().remove(userId);
+        repository.save(updatedFilm);
     }
 
     public List<FilmDto> findPopularFilms(Integer limit) {
@@ -89,10 +100,12 @@ public class FilmService {
         return getPopularFilms(limit);
     }
 
+    //todo to write getPopularFilms method
     private List<FilmDto> getPopularFilms(Integer limit) {
-        return repository.getPopularFilms(limit).stream()
-                .map(FilmMapper::mapToFilmDto)
-                .toList();
+        return null;
+//                repository.findAll().stream()
+//                .map(FilmMapper::mapToFilmDto)
+//                .toList();
     }
 
     private void validateGenres(List<Genre> genres) {
@@ -128,11 +141,21 @@ public class FilmService {
     }
 
     private FilmDto getFilmDto(Long updatedFilmId) {
-        return FilmMapper.mapToFilmDto(repository.getFilmById(updatedFilmId));
+        Optional<Film> optionalFilm = repository.findById(updatedFilmId);
+
+        checkIfFilmExits(optionalFilm, HttpStatus.NOT_FOUND, FILM_NOT_FOUND + updatedFilmId);
+
+        return FilmMapper.mapToFilmDto(optionalFilm.get());
+    }
+
+    private static void checkIfFilmExits(Optional<Film> optionalFilm, HttpStatus notFound, String filmIdNotFound) {
+        if (optionalFilm.isEmpty()) {
+            throw new EntityNotFoundException(notFound, filmIdNotFound);
+        }
     }
 
     private List<FilmDto> getFilmDtos() {
-        return repository.getAllFilms().stream()
+        return repository.findAll().stream()
                 .map(FilmMapper::mapToFilmDto)
                 .toList();
     }
