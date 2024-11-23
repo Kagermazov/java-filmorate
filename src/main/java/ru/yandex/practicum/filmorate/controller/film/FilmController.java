@@ -31,8 +31,8 @@ public class FilmController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FilmDto addFilm(@Valid @RequestBody Film newFilm) {
-        return service.addFilm(newFilm);
+    public FilmDto saveFilm(@Valid @RequestBody Film newFilm) {
+        return service.saveFilm(newFilm);
     }
 
     @PutMapping

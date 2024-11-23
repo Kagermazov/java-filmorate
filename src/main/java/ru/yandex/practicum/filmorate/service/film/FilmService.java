@@ -36,11 +36,12 @@ public class FilmService {
         mpaStorage = storageForMpa;
     }
 
-    public FilmDto addFilm(@NonNull Film newFilm) {
+    public FilmDto saveFilm(@NonNull Film newFilm) {
         validateMPA(newFilm.getMpa());
         validateGenres(newFilm.getGenres());
 
-        Long filmId = repository.save(newFilm).getId();
+        Film expectedFilm = repository.save(newFilm);
+        Long filmId = expectedFilm.getId();
 
         Optional<Film> optionalFilm = repository.findById(filmId);
 
@@ -100,7 +101,7 @@ public class FilmService {
         return getPopularFilms(limit);
     }
 
-    //todo to write getPopularFilms method
+    //todo write getPopularFilms method
     private List<FilmDto> getPopularFilms(Integer limit) {
         return null;
 //                repository.findAll().stream()
